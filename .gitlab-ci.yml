@@ -10,7 +10,6 @@ stages:
 install:
   stage: build
   script:
-    - npm stop
     - npm install
   tags:
     - node
