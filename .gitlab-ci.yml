@@ -1,0 +1,33 @@
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - build
+  - test
+  - deploy
+
+install:
+  stage: build
+  script:
+    - npm stop
+    - npm install
+  tags:
+    - node
+
+tests:
+  stage: test
+  script:
+    - npm start
+    - npm test
+    - npm stop
+  tags:
+    - node
+
+deploy:
+  stage: deploy
+  script:
+    - npm stop
+    - npm start
+  tags:
+    - node

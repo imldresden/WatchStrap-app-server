@@ -1,0 +1,25 @@
+{
+  "name": "app-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "forever start server.js",
+    "stop": "forever stopall",
+    "debug": "node server.js"
+  },
+  "keywords": [],
+  "author": "Tom Horak",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "forever": "^1.0.0",
+    "ip": "^1.1.5",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "socket.io-client": "latest",
+    "mocha": "^6.1.4"
+  }
+}

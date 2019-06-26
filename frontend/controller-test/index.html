@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Loader 2.13d</title>
+	<link rel="stylesheet" href="styles.css" type="text/css">
+</head>
+<body>
+	<div class="header_back">
+		<div class="header_face"></div>
+	</div>
+	<div class="content_back">
+		<div class="content_face">
+			<div class="menu_bar" >
+				<div id="BT">
+					<div>
+						<label class="menu_button" for="image-select">Select image</label>
+						<input class="hidden_input" id="image-select" type="file" onchange="handleImageSelection(this.files)"/>
+					</div>
+					<div>
+						<label class="menu_button" for="image-dither" id="image-dither-label">dithering: OFF</label>
+						<input class="hidden_input" id="image-dither" type="checkbox" onclick="handleDithering();"/>
+					</div>
+					<div>
+						<label class="menu_button" for="image-upload">Upload image</label>
+						<input class="hidden_input" id="image-upload" type="button" onclick="uploadImage();"/>
+					</div>
+					<div>
+						<label class="menu_button" for="orientation" id="orientation-label">Orientation: Portrait</label>
+						<input class="hidden_input" id="orientation" type="checkbox" onclick="changeOrientation();"/>
+					</div>
+					<div>
+						<label class="menu_button" for="refresh" id="refresh-label">Refresh: Full</label>
+						<input class="hidden_input" id="refresh" type="checkbox" onclick="changeRefresh();"/>
+					</div>
+				</div>
+				<div class="text">
+					<div>
+						<label for="font-size">Font-size</label>
+						<input type="number" id="font-size" value="12"/>
+					</div>
+					<div>
+						<label for="textarea">Text</label>
+						<textarea id="textarea" cols="200" wrap="hard" placeholder="Enter some text..." autofocus="true"></textarea>
+					</div>
+					<div>
+						<label class="menu_button" for="text-upload">Upload text</label>
+						<input class="hidden_input" id="text-upload" type="button" onclick="uploadText();"/>
+					</div>
+				</div>
+					<!--<table>
+					<tr><td class="comment" colspan="4"><br>Bounds:</td></tr>
+					<tr id="XY"></tr>
+					<tr id="WH"></tr>
+					</table>-->
+			</div>
+			<div class="content_body">
+				<span class="title">Original image</span><br>
+				<canvas id="source" class="hidden_input" width="104" height="212"></canvas>
+				<div id="srcBox">
+					<div class="imgBox">
+					<div class="mesBox">Drop image here...</div>
+				</div>
+				</div>
+			</div>
+			<div>
+				<div id="dstBox" class="content_body">
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="footer_back">
+		<div class="footer_face" id="logTag"></div>
+	</div>
+
+	<script type="text/javascript" src="jquery-3.1.1.js"></script>
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="script.js"></script>
+</body>
+</html>
