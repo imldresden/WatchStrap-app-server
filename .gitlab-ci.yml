@@ -17,6 +17,7 @@ install:
 tests:
   stage: test
   script:
+    - npm stop
     - npm start
     - npm test
     - npm stop
