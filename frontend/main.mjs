@@ -5,6 +5,11 @@ const displayConfigs = {
         width: 360,
         height: 360,
         color: 'full'
+    },
+    einkBw: {
+        width: 220,
+        height: 400,
+        color: 'bw'
     }
 };
 
@@ -13,6 +18,9 @@ class Main {
     #identifier = "main";
     #curApp;
     #socket;
+    #surfaces = {};
+    #surfacesLastUpdate = {};
+    #surfacesTimer = {};
 
     appContainer;
 
@@ -28,6 +36,11 @@ class Main {
 
         this.appContainer = document.querySelector('#appContainer');
 
+        let now = Date.now();
+        this.#surfacesLastUpdate['watch'] = now;
+        this.#surfacesLastUpdate['lowerStrap'] = now;
+        this.#surfacesLastUpdate['upperStrap'] = now;
+
         this.loadApp(TestApp);
     }
 
@@ -37,64 +50,61 @@ class Main {
         this.#curApp = undefined;
     }
 
-    loadSurfaces(watchId, lowerStrapId, upperStrapId) {
-        // Prepare containers
-        let watchContainer = document.createElement('iframe');
-        let lowerStrapContainer = document.createElement('iframe');
-        let upperStrapContainer = document.createElement('div');
-        watchContainer.setAttribute('id', 'watchContainer');
-        lowerStrapContainer.setAttribute('id', 'lowerStrapContainer');
-        upperStrapContainer.setAttribute('id', 'upperStrapContainer');
-        this.appContainer.appendChild(watchContainer);
-        this.appContainer.appendChild(lowerStrapContainer);
-        //this.appContainer.appendChild(upperStrapContainer);
-
-
-        watchContainer.contentWindow.document.open();
-        watchContainer.contentWindow.document.write("<head><title></title><script src='https://d3js.org/d3.v5.min.js'></script><script src='js/ssvg.js'></script></head></head><body></body><svg id='watch' height='360' width='360'></svg><script>new SSVG();</script></body>");
-        watchContainer.contentWindow.document.close();
-
-        watchContainer.contentWindow.onload = () => {
-            let watchSvg = watchContainer.contentWindow.d3.select('svg');
-            console.log(JSON.stringify(watchSvg));
-            new TestApp(watchSvg);
-        };
-
-
-
-        return;
-        new TestApp(watchSvg);
-        setTimeout(() => {
-        lowerStrapContainer.innerHTML = "<svg id='strap' height='360' width='360'></svg>";
-        new TestApp('strap');
-        }, 2000);
-
-        /*
-        // Prepare watch surface
-        let watch = displayConfigs[watchId];
-        let watchSvg = document.createElement('svg');
-        watchSvg.setAttribute('width', watch.width);
-        watchSvg.setAttribute('height', watch.height);
-        watchSvg.setAttribute('id', watchId);
-
-        this.appContainer.appendChild(watchSvg);
-        let watchSvg = document.getElementById('watch');
-        new SSVG({
-            onDrawn: () => { this.onSurfaceUpdate('watch', watchId); }
-            //svgElement: watchSvg
-        });*/
-
-        // Skip straps for now
-
-        //return d3.select(watchSvg);
+    static generateSurfaceSkeleton(displayId) {
+        let d = displayConfigs[displayId];
+        return `
+            <head>
+                <title></title>
+                <script src='https://d3js.org/d3.v5.min.js'></script>
+                <script src='js/ssvg.js'></script>
+            </head>
+            <body style='margin:0;'>
+                <svg id='surfaceSvg' height='${d.height}' width='${d.width}'></svg>
+                <script>
+                    //window.drawnListener = [];
+                    //var onDrawn = () => { window.drawnListener.forEach((cb) => cb(window.surId) ); };
+                    //new SSVG({onDrawn: onDrawn});
+                </script>
+            </body>`;
     }
+    //<script>new SSVG();</script>
 
     loadApp(app) {
         if (this.#curApp)
             this.clearCurApp();
 
-        let watchSvg = this.loadSurfaces('watchGearS3');
-        //this.#curApp = new app(watchSvg);
+        this.loadSurfaces({
+            upperStrap: 'einkBw',
+            watch: 'watchGearS3',
+            lowerStrap: 'einkBw'
+        }, app);
+
+
+    }
+
+    loadSurfaces(displayIds, app) {
+        if (Object.keys(displayIds).length !== 3)
+            throw Error('wrong number of display ids, expected 3');
+
+        this.surfaces = {};
+
+        for (let surId in displayIds) {
+            let d = displayConfigs[displayIds[surId]];
+            let surface = document.createElement('iframe');
+            surface.setAttribute('id', surId + "Surface");
+            surface.setAttribute("width", d.width);
+            surface.setAttribute("height", d.height);
+            this.appContainer.appendChild(surface);
+
+            surface.contentWindow.document.open();
+            surface.contentWindow.document.write(Main.generateSurfaceSkeleton(displayIds[surId]));
+            surface.contentWindow.document.close();
+
+            surface.contentWindow.onload = () => this.onSurfaceLoaded(surId, surface, app);
+
+            surface.contentWindow.surId = surId;
+            surface.contentWindow.colorMode = displayIds[surId].color;
+        }
     }
 
     onMsgError(e) {
@@ -105,8 +115,44 @@ class Main {
         console.log("msg", msg);
     }
 
-    onSurfaceUpdate(surface, displayId) {
+    onSurfaceLoaded(surId, surface, app) {
+        this.#surfaces[surId] = surface;
+        //surface.contentWindow.drawnListener.push(this.onSurfaceUpdate);
+        new surface.contentWindow.SSVG({onDrawn: () => this.onSurfaceUpdate(surId)});
 
+        if (Object.keys(this.#surfaces).length === 3)
+            this.#curApp = new app(
+                this.#surfaces['watch'].contentWindow,
+                this.#surfaces['lowerStrap'].contentWindow,
+                this.#surfaces['upperStrap'].contentWindow,
+            );
+    }
+
+    onSurfaceUpdate(surId) {
+        let surface = this.#surfaces[surId];
+        let lastUpdate = this.#surfacesLastUpdate[surId];
+        let timer = this.#surfacesTimer[surId];
+        let now = Date.now();
+        if (now - lastUpdate <= 200 && !timer) {
+            this.#surfacesTimer[surId] = setTimeout(() => {
+                this.#surfacesTimer[surId] = undefined;
+                this.onSurfaceUpdate(surId);
+            }, lastUpdate + 205);
+            return;
+        } else if (timer)
+            return;
+
+        let canvas = surface.contentWindow.document.getElementsByTagName('canvas')[0];
+        let imgData = canvas.toDataURL("image/jpeg", 0.6);
+        let msg = {
+            target: surId,
+            type: 'imageData',
+            payload: imgData
+        };
+
+        this.#socket.emit('msg', msg);
+        this.#surfacesLastUpdate[surId] = Date.now();
+        //console.log('update on', surId, imgData);
     }
 }
 

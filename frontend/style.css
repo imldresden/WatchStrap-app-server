@@ -1,0 +1,14 @@
+#appContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+iframe {
+    border: solid black 2px;
+}
+
+iframe#watchSurface {
+    border-radius: 50%;
+}

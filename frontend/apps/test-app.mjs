@@ -1,24 +1,21 @@
 export default class TestApp {
-    constructor(d3SvgElem) {
-        this.d3SvgElem = d3SvgElem;
+    #watch;
+    #loStrap;
+    #upStrap;
+
+    constructor(watchWindow, lowerStrapWindow, upperStrapWindow) {
+        this.#watch = watchWindow;
+        this.#loStrap = lowerStrapWindow;
+        this.#upStrap = upperStrapWindow;
         this.createVis();
     }
 
     createVis () {
-
-        /*let svgElem = document.getElementById(this.svgId);
-        console.log(svgElem);
-        new SSVG({
-            //onDrawn: () => { this.onSurfaceUpdate('watch', watchId); }
-            svgElement: svgElem
-        });*/
-        //new SSVG();
-
-        let svg = this.d3SvgElem;
+        let d3 = this.#watch.d3;
+        let svg = d3.select('svg');
 
         let width = +svg.attr("width"),
             height = +svg.attr("height");
-        console.log(width, height);
 
         function getCircle(cx, cy, r) {
             return {
