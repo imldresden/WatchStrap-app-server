@@ -27,13 +27,12 @@ io.on('connection', client => {
         if (remoteAddress) {
             client.emit('redirect', remoteAddress);
         } else {
-            client.emit('handshake');
+            client.emit('handshake', 'ok');
         }
         if (identifier !== "main" && connectionMap['main'] !== undefined) {
-            connectionMap['main'].emit('msg', {
-                target: 'main',
-                type: 'deviceConnected',
-                payload: { identifier: identifier }
+            connectionMap['main'].emit('info', {
+                type: 'connect',
+                identifier: identifier
             });
         }
     });
@@ -45,6 +44,17 @@ io.on('connection', client => {
         else
             client.emit('err', {'error': 'TargetNotFound'});
     });
+
+    client.on('disconnect', (reason) => {
+        let identifier = getIdentifierByClientId(client.id);
+        connectionMap.delete(identifier);
+
+        if (connectionMap['main'] !== undefined)
+            connectionMap['main'].emit('info', {
+                type: 'disconnect',
+                identifier: identifier
+            });
+    })
 });
 
 function getIdentifierByClientId(clientId) {

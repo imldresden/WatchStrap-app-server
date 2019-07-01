@@ -52,6 +52,7 @@ class Main {
 
         this.#socket.on('err', e => this.onMsgError(e));
         this.#socket.on('msg', msg => this.onMsg(msg));
+        this.#socket.on('info', msg => this.onInfo(msg));
     }
 
     static generateSurfaceSkeleton(displayId) {
@@ -119,6 +120,20 @@ class Main {
         }
     }
 
+    onInfo(msg) {
+        if(!msg.type)
+            return;
+
+        switch (msg.type) {
+            case 'connect':
+                console.log('device connected:', msg.identifier);
+                break;
+            case 'disconnect':
+                console.log('device disconnected:', msg.identifier);
+                break;
+        }
+    }
+
     onMsgError(e) {
         console.log("error", e);
     }
@@ -128,13 +143,7 @@ class Main {
             return;
 
         switch (msg.type) {
-            case 'deviceConnected':
-                console.log('device connected:', msg.payload.identifier);
-                break;
-            case 'input':
-                // do stuff
-                //this.#curApp.onInput...
-                break;
+            // handle messages
         }
     }
 
