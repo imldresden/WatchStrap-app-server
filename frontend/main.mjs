@@ -1,5 +1,11 @@
 import TestApp from './apps/test-app.mjs';
 
+const idMain = "MAIN";
+const idWatch = "WATCH";
+const idStrap = "STRAP";
+const idUpperStrap = "UPPER_STRAP";
+const idLowerStrap = "LOWER_STRAP";
+
 const displayConfigs = {
     watchGearS3: {
         width: 360,
@@ -15,7 +21,7 @@ const displayConfigs = {
 
 class Main {
 
-    #identifier = "main";
+    #identifier = idMain;
     #curApp;
     #socket;
     #surfaces = {};
@@ -75,9 +81,9 @@ class Main {
 
     initFrontEnd() {
         let now = Date.now();
-        this.#surfacesLastUpdate['watch'] = now;
-        this.#surfacesLastUpdate['lowerStrap'] = now;
-        this.#surfacesLastUpdate['upperStrap'] = now;
+        this.#surfacesLastUpdate[idWatch] = now;
+        this.#surfacesLastUpdate[idLowerStrap] = now;
+        this.#surfacesLastUpdate[idUpperStrap] = now;
 
         this.loadApp(TestApp);
     }
@@ -87,9 +93,9 @@ class Main {
             this.clearCurApp();
 
         this.loadSurfaces({
-            upperStrap: 'einkBw',
-            watch: 'watchGearS3',
-            lowerStrap: 'einkBw'
+            UPPER_STRAP: 'einkBw',
+            WATCH: 'watchGearS3',
+            LOWER_STRAP: 'einkBw'
         }, app);
 
 
@@ -99,12 +105,10 @@ class Main {
         if (Object.keys(displayIds).length !== 3)
             throw Error('wrong number of display ids, expected 3');
 
-        this.surfaces = {};
-
         for (let surId in displayIds) {
             let d = displayConfigs[displayIds[surId]];
             let surface = document.createElement('iframe');
-            surface.setAttribute('id', surId + "Surface");
+            surface.setAttribute('id', surId + "-surface");
             surface.setAttribute("width", d.width);
             surface.setAttribute("height", d.height);
             this.appContainer.appendChild(surface);
@@ -154,9 +158,9 @@ class Main {
 
         if (Object.keys(this.#surfaces).length === 3 && !this.#curApp) {
             this.#curApp = new app(
-                this.#surfaces['watch'].contentWindow,
-                this.#surfaces['lowerStrap'].contentWindow,
-                this.#surfaces['upperStrap'].contentWindow,
+                this.#surfaces[idWatch].contentWindow,
+                this.#surfaces[idLowerStrap].contentWindow,
+                this.#surfaces[idUpperStrap].contentWindow,
             );
         }
     }
@@ -185,7 +189,6 @@ class Main {
 
         this.#socket.emit('msg', msg);
         this.#surfacesLastUpdate[surId] = Date.now();
-        //console.log('update on', surId, imgData);
     }
 }
 

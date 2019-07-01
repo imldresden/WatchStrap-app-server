@@ -7,6 +7,12 @@ const path = require('path');
 const ip = require('ip');
 
 // Configuration
+const idMain = "MAIN";
+const idWatch = "WATCH";
+const idStrap = "STRAP";
+const idUpperStrap = "UPPER_STRAP";
+const idLowerStrap = "LOWER_STRAP";
+
 const port = 31415;
 let remoteAddress;
 
@@ -29,8 +35,8 @@ io.on('connection', client => {
         } else {
             client.emit('handshake', 'ok');
         }
-        if (identifier !== "main" && connectionMap['main'] !== undefined) {
-            connectionMap['main'].emit('info', {
+        if (identifier !== idMain && connectionMap[idMain] !== undefined) {
+            connectionMap[idMain].emit('info', {
                 type: 'connect',
                 identifier: identifier
             });
@@ -49,8 +55,8 @@ io.on('connection', client => {
         let identifier = getIdentifierByClientId(client.id);
         connectionMap.delete(identifier);
 
-        if (connectionMap['main'] !== undefined)
-            connectionMap['main'].emit('info', {
+        if (connectionMap[idMain] !== undefined)
+            connectionMap[idMain].emit('info', {
                 type: 'disconnect',
                 identifier: identifier
             });
