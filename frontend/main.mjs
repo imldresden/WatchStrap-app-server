@@ -25,29 +25,33 @@ class Main {
     appContainer;
 
     constructor() {
-        this.#socket = io();
 
-        this.#socket.on('connect', () => {
-            this.#socket.emit('handshake', this.#identifier);
-        });
-
-        this.#socket.on('err', e => this.onMsgError(e));
-        this.#socket.on('msg', msg => this.onMsg(msg));
+        this.connectToServer();
 
         this.appContainer = document.querySelector('#appContainer');
-
-        let now = Date.now();
-        this.#surfacesLastUpdate['watch'] = now;
-        this.#surfacesLastUpdate['lowerStrap'] = now;
-        this.#surfacesLastUpdate['upperStrap'] = now;
-
-        this.loadApp(TestApp);
     }
 
     clearCurApp() {
         while (this.appContainer.firstChild)
             this.appContainer.removeChild(this.appContainer.firstChild);
         this.#curApp = undefined;
+    }
+
+    connectToServer(ip) {
+        if (this.#socket)
+            this.#socket.close();
+
+        this.#socket = io(ip);
+
+        this.#socket.on('connect', () => {
+            this.#socket.emit('handshake', this.#identifier);
+        });
+
+        this.#socket.on('handshake', () => this.initFrontEnd());
+        this.#socket.on('redirect', remoteAddress => this.connectToServer(remoteAddress));
+
+        this.#socket.on('err', e => this.onMsgError(e));
+        this.#socket.on('msg', msg => this.onMsg(msg));
     }
 
     static generateSurfaceSkeleton(displayId) {
@@ -67,7 +71,15 @@ class Main {
                 </script>
             </body>`;
     }
-    //<script>new SSVG();</script>
+
+    initFrontEnd() {
+        let now = Date.now();
+        this.#surfacesLastUpdate['watch'] = now;
+        this.#surfacesLastUpdate['lowerStrap'] = now;
+        this.#surfacesLastUpdate['upperStrap'] = now;
+
+        this.loadApp(TestApp);
+    }
 
     loadApp(app) {
         if (this.#curApp)
@@ -112,7 +124,18 @@ class Main {
     }
 
     onMsg(msg) {
-        console.log("msg", msg);
+        if (!msg.type)
+            return;
+
+        switch (msg.type) {
+            case 'deviceConnected':
+                console.log('device connected:', msg.payload.identifier);
+                break;
+            case 'input':
+                // do stuff
+                //this.#curApp.onInput...
+                break;
+        }
     }
 
     onSurfaceLoaded(surId, surface, app) {
@@ -120,12 +143,13 @@ class Main {
         //surface.contentWindow.drawnListener.push(this.onSurfaceUpdate);
         new surface.contentWindow.SSVG({onDrawn: () => this.onSurfaceUpdate(surId)});
 
-        if (Object.keys(this.#surfaces).length === 3)
+        if (Object.keys(this.#surfaces).length === 3 && !this.#curApp) {
             this.#curApp = new app(
                 this.#surfaces['watch'].contentWindow,
                 this.#surfaces['lowerStrap'].contentWindow,
                 this.#surfaces['upperStrap'].contentWindow,
             );
+        }
     }
 
     onSurfaceUpdate(surId) {

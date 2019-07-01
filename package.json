@@ -7,7 +7,8 @@
     "test": "mocha",
     "start": "forever start server.js",
     "stop": "forever stopall",
-    "debug": "node server.js"
+    "debug-local": "node server.js",
+    "debug-remote": "node server.js --remote=141.76.67.139:31415"
   },
   "keywords": [],
   "author": "Tom Horak",

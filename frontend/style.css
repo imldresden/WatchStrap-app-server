@@ -1,8 +1,15 @@
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
 #appContainer {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
+
+    transform-origin: top;
 }
 
 iframe {

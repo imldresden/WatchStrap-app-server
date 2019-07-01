@@ -8,6 +8,13 @@ const ip = require('ip');
 
 // Configuration
 const port = 31415;
+let remoteAddress;
+
+process.argv.forEach(function (val, index, array) {
+    if (val.startsWith("--remote=")) {
+        remoteAddress = val.split('=')[1];
+    }
+});
 
 app.use(express.static(path.join(__dirname, "frontend")));
 
@@ -17,7 +24,18 @@ const connectionMap = new Map();
 io.on('connection', client => {
     client.on('handshake', identifier => {
         connectionMap[identifier] = client;
-        console.log("handshake:" + identifier);
+        if (remoteAddress) {
+            client.emit('redirect', remoteAddress);
+        } else {
+            client.emit('handshake');
+        }
+        if (identifier !== "main" && connectionMap['main'] !== undefined) {
+            connectionMap['main'].emit('msg', {
+                target: 'main',
+                type: 'deviceConnected',
+                payload: { identifier: identifier }
+            });
+        }
     });
 
     client.on('msg', msg => {
