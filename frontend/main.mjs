@@ -16,6 +16,16 @@ const displayConfigs = {
         width: 220,
         height: 400,
         color: 'bw'
+    },
+    digitalUpperStrap: {
+        width: 270,
+        height: 620,
+        color: 'full'
+    },
+    digitalLowerStrap: {
+        width: 270,
+        height: 900,
+        color: 'full'
     }
 };
 
@@ -115,9 +125,9 @@ class Main {
             this.clearCurApp();
 
         this.loadSurfaces({
-            UPPER_STRAP: 'einkBw',
+            UPPER_STRAP: 'digitalUpperStrap',
             WATCH: 'watchGearS3',
-            LOWER_STRAP: 'einkBw'
+            LOWER_STRAP: 'digitalLowerStrap'
         }, app);
 
 
