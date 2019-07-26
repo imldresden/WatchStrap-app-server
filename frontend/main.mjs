@@ -71,7 +71,7 @@ class Main {
         this.#socket.on('info', msg => this.onInfo(msg));
     }
 
-    dispatchBezelEvent(surId, event) {
+    static dispatchBezelEvent(surId, event) {
         let bezelEvent = new CustomEvent(event.type, {
             bubbles: true,
             cancelable: true,
@@ -111,7 +111,7 @@ class Main {
         return `
             <head>
                 <title></title>
-                <script src='https://d3js.org/d3.v5.min.js'></script>
+                <script src='js/d3.v5.min.js'></script>
                 <script src='js/ssvg.js'></script>
             </head>
             <body style='margin:0;'>
@@ -128,8 +128,8 @@ class Main {
         this.loadApp(TestApp);
 
         document.getElementById('debugUpdate')
-            .addEventListener('click', () => this.onDebugUpdate());
-        this.onDebugUpdate();
+            .addEventListener('click', () => Main.onDebugUpdate());
+        Main.onDebugUpdate();
     }
 
     loadApp(app) {
@@ -168,14 +168,13 @@ class Main {
         }
     }
 
-    onDebugUpdate() {
+    static onDebugUpdate() {
         let overallScale = document.getElementById('debug-overall-scale').value;
         let overallX = document.getElementById('debug-overall-x').value;
         let overallY = document.getElementById('debug-overall-y').value;
         let spacing = document.getElementById('debug-spacing').value;
 
-        let overallTrans = `rotate(90deg) translate(${overallY}px, ${overallX}px) scale(${overallScale})`;
-        document.getElementById('appContainer').style.transform = overallTrans;
+        document.getElementById('appContainer').style.transform = `rotate(90deg) translate(${overallY}px, ${overallX}px) scale(${overallScale})`;
         document.getElementById(idUpperStrap + "-surface").style.transform = `translate(0, -${spacing}px)`;
         document.getElementById(idLowerStrap + "-surface").style.transform = `translate(0, ${spacing}px)`;
     }
@@ -195,7 +194,7 @@ class Main {
     }
 
     onMsgError(e) {
-        console.info("error", e);
+        console.warn("error", e);
     }
 
     onMsg(msg) {
@@ -207,7 +206,7 @@ class Main {
                 this.dispatchTouchEvent(msg.sender, msg.payload);
                 break;
             case 'bezelrotate':
-                this.dispatchBezelEvent(msg.sender, msg.payload);
+                Main.dispatchBezelEvent(msg.sender, msg.payload);
                 break;
         }
     }
