@@ -71,6 +71,18 @@ class Main {
         this.#socket.on('info', msg => this.onInfo(msg));
     }
 
+    dispatchBezelEvent(surId, event) {
+        let bezelEvent = new CustomEvent(event.type, {
+            bubbles: true,
+            cancelable: true,
+            detail: {
+                direction: event.direction
+            }
+        });
+
+        document.dispatchEvent(bezelEvent);
+    }
+
     dispatchTouchEvent(surId, event) {
         let surface = this.#surfaces[surId];
         let canvas = surface.contentWindow.document.getElementsByTagName('canvas')[0];
@@ -195,7 +207,7 @@ class Main {
                 this.dispatchTouchEvent(msg.sender, msg.payload);
                 break;
             case 'bezelrotate':
-                // do stuff
+                this.dispatchBezelEvent(msg.sender, msg.payload);
                 break;
         }
     }
