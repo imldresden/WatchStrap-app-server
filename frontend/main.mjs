@@ -61,6 +61,29 @@ class Main {
         this.#socket.on('info', msg => this.onInfo(msg));
     }
 
+    dispatchTouchEvent(surId, event) {
+        let surface = this.#surfaces[surId];
+        let canvas = surface.contentWindow.document.getElementsByTagName('canvas')[0];
+        let newEvent = surface.contentWindow.document.createEvent('MouseEvent');
+
+        let type;
+        switch(event.type)
+        {
+            case "touchstart": type = "mousedown"; break;
+            case "touchmove":  type = "mousemove"; break;
+            case "touchend":   type = "mouseup";   break;
+            default:           return;
+        }
+
+        newEvent.initMouseEvent(type, true, true, surface.contentWindow.document.defaultView, 0,
+            event.pos.x, event.pos.y, event.pos.x, event.pos.y, false, false, false, false, 0, canvas
+        );
+
+        canvas.dispatchEvent(newEvent);
+
+        console.debug(`dispatched event ${event.type} as ${type}:`, event, newEvent);
+    }
+
     static generateSurfaceSkeleton(displayId) {
         let d = displayConfigs[displayId];
         return `
@@ -71,11 +94,6 @@ class Main {
             </head>
             <body style='margin:0;'>
                 <svg id='surfaceSvg' height='${d.height}' width='${d.width}'></svg>
-                <script>
-                    //window.drawnListener = [];
-                    //var onDrawn = () => { window.drawnListener.forEach((cb) => cb(window.surId) ); };
-                    //new SSVG({onDrawn: onDrawn});
-                </script>
             </body>`;
     }
 
@@ -130,16 +148,16 @@ class Main {
 
         switch (msg.type) {
             case 'connect':
-                console.log('device connected:', msg.identifier);
+                console.debug('device connected:', msg.identifier);
                 break;
             case 'disconnect':
-                console.log('device disconnected:', msg.identifier);
+                console.debug('device disconnected:', msg.identifier);
                 break;
         }
     }
 
     onMsgError(e) {
-        console.log("error", e);
+        console.info("error", e);
     }
 
     onMsg(msg) {
@@ -147,13 +165,17 @@ class Main {
             return;
 
         switch (msg.type) {
-            // handle messages
+            case 'touch':
+                this.dispatchTouchEvent(msg.sender, msg.payload);
+                break;
+            case 'bezelrotate':
+                // do stuff
+                break;
         }
     }
 
     onSurfaceLoaded(surId, surface, app) {
         this.#surfaces[surId] = surface;
-        //surface.contentWindow.drawnListener.push(this.onSurfaceUpdate);
         new surface.contentWindow.SSVG({onDrawn: () => this.onSurfaceUpdate(surId)});
 
         if (Object.keys(this.#surfaces).length === 3 && !this.#curApp) {
@@ -174,29 +196,23 @@ class Main {
             this.#surfacesTimer[surId] = setTimeout(() => {
                 this.#surfacesTimer[surId] = undefined;
                 this.onSurfaceUpdate(surId);
-            }, lastUpdate + 205);
+            }, 205);
             return;
         } else if (timer)
             return;
 
-        let canvas = surface.contentWindow.document.getElementsByTagName('canvas')[0];
-        let imgData = canvas.toDataURL("image/jpeg", 0.6);
-        let msg = {
-            target: surId,
-            type: 'imageData',
-            payload: imgData
-        };
+        setTimeout(() => {
+            let canvas = surface.contentWindow.document.getElementsByTagName('canvas')[0];
+            let imgData = canvas.toDataURL("image/jpeg", 0.6);
+            let msg = {
+                target: surId,
+                type: 'imageData',
+                payload: imgData
+            };
 
-        this.#socket.emit('msg', msg);
-        this.#surfacesLastUpdate[surId] = Date.now();
+            this.#socket.emit('msg', msg);
+            this.#surfacesLastUpdate[surId] = Date.now();
+        }, 10);
     }
 }
-
 new Main();
-
-/* Old code
-
-
-        this.lastUpdate = Date.now();
-        this.timeout = undefined;
- */
