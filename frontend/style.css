@@ -1,6 +1,14 @@
 body {
     height: 100%;
     overflow: hidden;
+    background-color: black;
+}
+
+#debug {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
 }
 
 #appContainer {
@@ -9,7 +17,7 @@ body {
     align-items: center;
     flex-direction: column;
 
-    transform-origin: top;
+    transform-origin: center;
 }
 
 iframe {

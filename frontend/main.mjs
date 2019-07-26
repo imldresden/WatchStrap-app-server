@@ -104,6 +104,10 @@ class Main {
         this.#surfacesLastUpdate[idUpperStrap] = now;
 
         this.loadApp(TestApp);
+
+        document.getElementById('debugUpdate')
+            .addEventListener('click', () => this.onDebugUpdate());
+        this.onDebugUpdate();
     }
 
     loadApp(app) {
@@ -140,6 +144,18 @@ class Main {
             surface.contentWindow.surId = surId;
             surface.contentWindow.colorMode = displayIds[surId].color;
         }
+    }
+
+    onDebugUpdate() {
+        let overallScale = document.getElementById('debug-overall-scale').value;
+        let overallX = document.getElementById('debug-overall-x').value;
+        let overallY = document.getElementById('debug-overall-y').value;
+        let spacing = document.getElementById('debug-spacing').value;
+
+        let overallTrans = `rotate(90deg) translate(${overallY}px, ${overallX}px) scale(${overallScale})`;
+        document.getElementById('appContainer').style.transform = overallTrans;
+        document.getElementById(idUpperStrap + "-surface").style.transform = `translate(0, -${spacing}px)`;
+        document.getElementById(idLowerStrap + "-surface").style.transform = `translate(0, ${spacing}px)`;
     }
 
     onInfo(msg) {
