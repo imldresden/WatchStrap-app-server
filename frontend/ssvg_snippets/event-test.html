@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SSVG Event Test</title>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+</head>
+<body style='margin:0;'>
+<svg id='surfaceSvg' height='400' width='400'></svg>
+<!--<script src="https://ssvg.io/ssvg.js"></script>-->
+<script src='js/ssvg.js'></script>
+
+<script>
+    new SSVG({onDrawn: () => {console.log("onDrawn"); }});
+
+    let svg = d3.select('svg');
+    let width = 400, height = 400;
+
+    let data = [5, 10, 8, 8];
+    let bars = svg.selectAll('rect')
+        .data(data);
+
+    bars.enter()
+        .append('rect')
+        .attr('width', 90)
+        .attr('height', (d) => { return d * 40; } )
+        .style("fill", "blue")
+        .attr('x', (d, i) => { return i * 100; })
+        .attr('y', 0)
+        .on('mousedown', function(d, i) {
+            let elem = d3.select(this);
+            elem.style("fill", `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}`);
+        });
+</script>
+
+<button id="fake">Fake Event</button>
+<script>
+    window.onload = () => {
+        let canvas = document.getElementsByTagName('canvas')[0];
+
+        canvas.addEventListener('mouseup', (e) => {
+            console.log("canvas mousedown", e)
+        });
+
+        canvas.addEventListener('touchend', (e) => {console.log("touch up", e);});
+
+        document.getElementById('fake').addEventListener('click', function() {
+
+            let evt = document.createEvent('MouseEvents');
+            evt.initMouseEvent('mousedown', true, true, document.defaultView, 0, 15, 20, 15, 20, false, false, false, false, 0, canvas);
+            canvas.dispatchEvent(evt);
+        });
+    }
+</script>
+</body>
+</html>

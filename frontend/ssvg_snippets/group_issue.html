@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SSVG Group Issue</title>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+</head>
+<body style='margin:0;'>
+<svg id='surfaceSvg' height='400' width='400'></svg>
+<script src="https://ssvg.io/ssvg.js"></script>
+
+<script>
+    new SSVG();
+
+    let svg = d3.select('svg');
+    let width = 400, height = 400;
+
+    let container = svg.append('g');
+    let data = [
+        {h: "heading 1", text: "text description 1"},
+        {h: "heading 2", text: "text description 2"},
+        {h: "heading 3", text: "text description 3"},
+    ];
+
+    let dataCon = container.selectAll('g')
+        .data(data)
+        .enter().append('g');
+    
+    dataCon.append('text')
+        .text((d) => d.h)
+        .attr('text-anchor', 'middle')
+        .style('font', '34px sans-serif')
+        .attr('x', width / 2)
+        .attr('y', (d, i) => height / 4 - 20 + (height / 4) * i);
+
+    dataCon.append('text')
+        .text((d) => d.text)
+        .attr('text-anchor', 'middle')
+        .style('font', '20px sans-serif')
+        .attr('x', width / 2)
+        .attr('y', (d, i) => height / 4 + 10 + (height / 4) * i);
+</script>
+</body>
+</html>
