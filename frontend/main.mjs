@@ -31,12 +31,14 @@ const displayConfigs = {
 
 class Main {
 
-    #identifier = idMain;
-    #curApp;
-    #socket;
-    #surfaces = {};
-    #surfacesLastUpdate = {};
-    #surfacesTimer = {};
+    _identifier = idMain;
+    _curApp;
+    _nextApp;
+    _availApps;
+    _socket;
+    _surfaces = {};
+    _surfacesLastUpdate = {};
+    _surfacesTimer = {};
 
     appContainer;
 
@@ -50,25 +52,25 @@ class Main {
     clearCurApp() {
         while (this.appContainer.firstChild)
             this.appContainer.removeChild(this.appContainer.firstChild);
-        this.#curApp = undefined;
+        this._curApp = undefined;
     }
 
     connectToServer(ip) {
-        if (this.#socket)
-            this.#socket.close();
+        if (this._socket)
+            this._socket.close();
 
-        this.#socket = io(ip);
+        this._socket = io(ip);
 
-        this.#socket.on('connect', () => {
-            this.#socket.emit('handshake', this.#identifier);
+        this._socket.on('connect', () => {
+            this._socket.emit('handshake', this._identifier);
         });
 
-        this.#socket.on('handshake', () => this.initFrontEnd());
-        this.#socket.on('redirect', remoteAddress => this.connectToServer(remoteAddress));
+        this._socket.on('handshake', () => this.initFrontEnd());
+        this._socket.on('redirect', remoteAddress => this.connectToServer(remoteAddress));
 
-        this.#socket.on('err', e => this.onMsgError(e));
-        this.#socket.on('msg', msg => this.onMsg(msg));
-        this.#socket.on('info', msg => this.onInfo(msg));
+        this._socket.on('err', e => this.onMsgError(e));
+        this._socket.on('msg', msg => this.onMsg(msg));
+        this._socket.on('info', msg => this.onInfo(msg));
     }
 
     static dispatchBezelEvent(surId, event) {
@@ -84,9 +86,7 @@ class Main {
     }
 
     dispatchTouchEvent(surId, event) {
-        let surface = this.#surfaces[surId];
-        let canvas = surface.contentWindow.document.getElementsByTagName('canvas')[0];
-        let newEvent = surface.contentWindow.document.createEvent('MouseEvent');
+        let surface = this._surfaces[surId];
 
         let type;
         switch(event.type)
@@ -121,9 +121,9 @@ class Main {
 
     initFrontEnd() {
         let now = Date.now();
-        this.#surfacesLastUpdate[idWatch] = now;
-        this.#surfacesLastUpdate[idLowerStrap] = now;
-        this.#surfacesLastUpdate[idUpperStrap] = now;
+        this._surfacesLastUpdate[idWatch] = now;
+        this._surfacesLastUpdate[idLowerStrap] = now;
+        this._surfacesLastUpdate[idUpperStrap] = now;
 
         this.loadApp(TestApp);
 
@@ -133,7 +133,7 @@ class Main {
     }
 
     loadApp(app) {
-        if (this.#curApp)
+        if (this._curApp)
             this.clearCurApp();
 
         this.loadSurfaces({
@@ -225,13 +225,12 @@ class Main {
     }
 
     onSurfaceUpdate(surId) {
-        let surface = this.#surfaces[surId];
-        let lastUpdate = this.#surfacesLastUpdate[surId];
-        let timer = this.#surfacesTimer[surId];
+        let surface = this._surfaces[surId];
+        let lastUpdate = this._surfacesLastUpdate[surId];
+        let timer = this._surfacesTimer[surId];
         let now = Date.now();
-        if (now - lastUpdate <= 200 && !timer) {
-            this.#surfacesTimer[surId] = setTimeout(() => {
-                this.#surfacesTimer[surId] = undefined;
+            this._surfacesTimer[surId] = setTimeout(() => {
+                this._surfacesTimer[surId] = undefined;
                 this.onSurfaceUpdate(surId);
             }, 205);
             return;
@@ -247,8 +246,8 @@ class Main {
                 payload: imgData
             };
 
-            this.#socket.emit('msg', msg);
-            this.#surfacesLastUpdate[surId] = Date.now();
+            this._socket.emit('msg', msg);
+            this._surfacesLastUpdate[surId] = Date.now();
         }, 10);
     }
 }
