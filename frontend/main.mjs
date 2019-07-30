@@ -1,4 +1,9 @@
+import Surface from './surface.mjs';
 import TestApp from './apps/test-app.mjs';
+import Drawer from './apps/drawer.mjs';
+import ActivityTracker from './apps/activity-tracker.mjs';
+import MusicPlayer from './apps/music-player.mjs';
+import SmartHome from './apps/smart-home.mjs';
 
 const idMain = "MAIN";
 const idWatch = "WATCH";
@@ -43,15 +48,23 @@ class Main {
     appContainer;
 
     constructor() {
+        this._availApps = [
+            ActivityTracker,
+            MusicPlayer,
+            SmartHome,
+            TestApp
+        ];
 
         this.connectToServer();
 
         this.appContainer = document.querySelector('#appContainer');
+        document.addEventListener('intent', (i) => this.onIntent(i));
     }
 
     clearCurApp() {
         while (this.appContainer.firstChild)
             this.appContainer.removeChild(this.appContainer.firstChild);
+        this._surfaces = {};
         this._curApp = undefined;
     }
 
@@ -73,20 +86,23 @@ class Main {
         this._socket.on('info', msg => this.onInfo(msg));
     }
 
-    static dispatchBezelEvent(surId, event) {
-        let bezelEvent = new CustomEvent(event.type, {
-            bubbles: true,
-            cancelable: true,
-            detail: {
-                direction: event.direction
-            }
-        });
+    dispatchBezelEvent(event) {
+        if (this._curApp)
+            this._curApp.onBezelRotate(event);
+    }
 
-        document.dispatchEvent(bezelEvent);
+    dispatchHwkeyEvent(event) {
+        if (this._curApp)
+            this._curApp.onHwkey(event);
     }
 
     dispatchTouchEvent(surId, event) {
         let surface = this._surfaces[surId];
+        if (!this._curApp || !surface)
+            return;
+
+        let canvas = surface.document.getElementsByTagName('canvas')[0];
+        let newEvent = surface.document.createEvent('MouseEvent');
 
         let type;
         switch(event.type)
@@ -97,7 +113,7 @@ class Main {
             default:           return;
         }
 
-        newEvent.initMouseEvent(type, true, true, surface.contentWindow.document.defaultView, 0,
+        newEvent.initMouseEvent(type, true, true, surface.document.defaultView, 0,
             event.pos.x, event.pos.y, event.pos.x, event.pos.y, false, false, false, false, 0, canvas
         );
 
@@ -125,58 +141,107 @@ class Main {
         this._surfacesLastUpdate[idLowerStrap] = now;
         this._surfacesLastUpdate[idUpperStrap] = now;
 
-        this.loadApp(TestApp);
+        // Load values from debug inputs / local storage; register listener
+        let debugInputs = document.getElementById('debug').getElementsByTagName('input');
+        for (let debugInput of debugInputs) {
+            if (localStorage.getItem(debugInput.id))
+                debugInput.value = localStorage.getItem(debugInput.id);
+            debugInput.addEventListener('change', () => Main.onDebugUpdate(debugInput));
+        }
 
-        document.getElementById('debugUpdate')
-            .addEventListener('click', () => Main.onDebugUpdate());
-        Main.onDebugUpdate();
+        // Register listener for watch hardware events simulators
+        document.getElementById('debug-bezelrotate-cw').addEventListener('click',
+            () => this.dispatchBezelEvent({direction: "CW", type: "bezelrotate"}));
+        document.getElementById('debug-bezelrotate-ccw').addEventListener('click',
+            () => this.dispatchBezelEvent({direction: "CCW", type: "bezelrotate"}));
+        document.getElementById('debug-hwkey-back').addEventListener('click',
+            () => this.dispatchHwkeyEvent({key: "back", type: "hwkey"}));
+
+        // Check for noSsvg URL flag; update indicator
+        let noSsvg = (new URL(window.location.href)).searchParams.get("noSsvg");
+        if (noSsvg !== null) {
+            let debugElem = document.getElementById('ssvg-debug');
+            debugElem.innerHTML = "SSVG: inactive";
+            debugElem.classList = "off";
+        }
+
+        this.loadApp(Drawer);
     }
 
     loadApp(app) {
         if (this._curApp)
             this.clearCurApp();
 
+        this._nextApp = app;
+
         this.loadSurfaces({
             UPPER_STRAP: 'digitalUpperStrap',
             WATCH: 'watchGearS3',
-            LOWER_STRAP: 'digitalLowerStrap'
-        }, app);
+            LOWER_STRAP: 'digitalLowerStrap',
+        });
 
+        let debugInputs = document.getElementById('debug').getElementsByTagName('input');
+        for (let debugInput of debugInputs) {
+            Main.onDebugUpdate(debugInput);
+        }
 
     }
 
-    loadSurfaces(displayIds, app) {
+    loadSurfaces(displayIds) {
         if (Object.keys(displayIds).length !== 3)
             throw Error('wrong number of display ids, expected 3');
 
         for (let surId in displayIds) {
             let d = displayConfigs[displayIds[surId]];
-            let surface = document.createElement('iframe');
-            surface.setAttribute('id', surId + "-surface");
-            surface.setAttribute("width", d.width);
-            surface.setAttribute("height", d.height);
-            this.appContainer.appendChild(surface);
-
-            surface.contentWindow.document.open();
-            surface.contentWindow.document.write(Main.generateSurfaceSkeleton(displayIds[surId]));
-            surface.contentWindow.document.close();
-
-            surface.contentWindow.onload = () => this.onSurfaceLoaded(surId, surface, app);
-
-            surface.contentWindow.surId = surId;
-            surface.contentWindow.colorMode = displayIds[surId].color;
+            let skeleton = Main.generateSurfaceSkeleton(displayIds[surId]);
+            new Surface(surId, d, this.appContainer, skeleton, (this.onSurfaceLoaded).bind(this));
         }
     }
 
-    static onDebugUpdate() {
-        let overallScale = document.getElementById('debug-overall-scale').value;
-        let overallX = document.getElementById('debug-overall-x').value;
-        let overallY = document.getElementById('debug-overall-y').value;
-        let spacing = document.getElementById('debug-spacing').value;
+    static onDebugUpdate(input) {
+        // HELPER
+        let updateCon = (x, y, scale) => {
+            document.getElementById('appContainer').style.transform = `rotate(90deg) translate(${y}px, ${x}px) scale(${scale})`;
+        }
 
-        document.getElementById('appContainer').style.transform = `rotate(90deg) translate(${overallY}px, ${overallX}px) scale(${overallScale})`;
-        document.getElementById(idUpperStrap + "-surface").style.transform = `translate(0, -${spacing}px)`;
-        document.getElementById(idLowerStrap + "-surface").style.transform = `translate(0, ${spacing}px)`;
+        switch (input.id) {
+            case "debug-overall-scale":
+                updateCon(
+                    document.getElementById('debug-overall-x').value,
+                    document.getElementById('debug-overall-y').value,
+                    input.value);
+                break;
+            case "debug-overall-x":
+                updateCon(
+                    input.value,
+                    document.getElementById('debug-overall-y').value,
+                    document.getElementById('debug-overall-scale').value);
+                break;
+            case "debug-overall-y":
+                updateCon(
+                    document.getElementById('debug-overall-x').value,
+                    input.value,
+                    document.getElementById('debug-overall-scale').value);
+                break;
+            case "debug-spacing":
+                document.getElementById(idUpperStrap + "-surface").style.transform = `translate(0, -${input.value}px)`;
+                document.getElementById(idLowerStrap + "-surface").style.transform = `translate(0, ${input.value}px)`;
+                break;
+        }
+
+        localStorage.setItem(input.id, input.value);
+    }
+
+    onIntent(intent) {
+        switch(intent.detail.type) {
+            case 'app':
+                this.loadApp(intent.detail.app);
+                break;
+            case 'close':
+                this.loadApp(Drawer);
+                break;
+        }
+        
     }
 
     onInfo(msg) {
@@ -206,21 +271,35 @@ class Main {
                 this.dispatchTouchEvent(msg.sender, msg.payload);
                 break;
             case 'bezelrotate':
-                Main.dispatchBezelEvent(msg.sender, msg.payload);
+                this.dispatchBezelEvent(msg.payload);
+                break;
+            case 'hwkey':
+                this.dispatchHwkeyEvent(msg.payload);
                 break;
         }
     }
 
-    onSurfaceLoaded(surId, surface, app) {
-        this.#surfaces[surId] = surface;
-        new surface.contentWindow.SSVG({onDrawn: () => this.onSurfaceUpdate(surId)});
+    onSurfaceLoaded(surId, surface) {
+        this._surfaces[surId] = surface;
+        let noSsvg = (new URL(window.location.href)).searchParams.get("noSsvg");
+        if (noSsvg === null)
+            new surface.window.SSVG({onDrawn: () => this.onSurfaceUpdate(surId)});
 
-        if (Object.keys(this.#surfaces).length === 3 && !this.#curApp) {
-            this.#curApp = new app(
-                this.#surfaces[idWatch].contentWindow,
-                this.#surfaces[idLowerStrap].contentWindow,
-                this.#surfaces[idUpperStrap].contentWindow,
-            );
+        if (Object.keys(this._surfaces).length === 3 && !this._curApp) {
+            if (this._nextApp === Drawer) {
+                this._curApp = new this._nextApp(
+                    this._surfaces[idWatch],
+                    this._surfaces[idLowerStrap],
+                    this._surfaces[idUpperStrap],
+                    this._availApps
+                );
+            } else {
+                this._curApp = new this._nextApp(
+                    this._surfaces[idWatch],
+                    this._surfaces[idLowerStrap],
+                    this._surfaces[idUpperStrap]
+                );
+            }
         }
     }
 
@@ -229,16 +308,17 @@ class Main {
         let lastUpdate = this._surfacesLastUpdate[surId];
         let timer = this._surfacesTimer[surId];
         let now = Date.now();
+        if (now - lastUpdate <= 20 && !timer) {
             this._surfacesTimer[surId] = setTimeout(() => {
                 this._surfacesTimer[surId] = undefined;
                 this.onSurfaceUpdate(surId);
-            }, 205);
+            }, 25);
             return;
         } else if (timer)
             return;
 
         setTimeout(() => {
-            let canvas = surface.contentWindow.document.getElementsByTagName('canvas')[0];
+            let canvas = surface.document.getElementsByTagName('canvas')[0];
             let imgData = canvas.toDataURL("image/jpeg", 0.6);
             let msg = {
                 target: surId,

@@ -9,6 +9,10 @@ body {
     top: 0;
     left: 0;
     color: white;
+    padding: 10px;
+    background-color: darkcyan;
+    font: 12px sans-serif;
+    border-radius: 5px;
 }
 
 #appContainer {
@@ -21,9 +25,18 @@ body {
 }
 
 iframe {
-    border: solid black 2px;
+    border: solid white 2px;
 }
 
-iframe#WATCH-surface {
+iframe_watch-surface {
     border-radius: 50%;
+}
+
+#ssvg-debug {
+    color: lightgreen;
+}
+
+#ssvg-debug.off {
+    color: lightcoral;
+    font-weight: bold;
 }
