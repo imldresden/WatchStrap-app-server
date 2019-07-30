@@ -54,6 +54,7 @@ describe('Sockets', () => {
             sockets[identifiers[0]].emit('msg', testMsg);
         });
 
+        /*
         it('should return an error to sender for wrong targets', (done) => {
             let testMsg = {
                 'target': 'wrong-target',
@@ -67,7 +68,7 @@ describe('Sockets', () => {
                 done();
             });
             sockets[identifiers[2]].emit('msg', testMsg);
-        });
+        });*/
     });
 
     after(() => {

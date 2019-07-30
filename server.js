@@ -47,8 +47,8 @@ io.on('connection', client => {
         let target = connectionMap[msg.target];
         if (target)
             target.emit('msg', msg);
-        else
-            client.emit('err', {'error': 'TargetNotFound'});
+        /*else
+            client.emit('err', {'error': 'TargetNotFound'});*/
     });
 
     client.on('disconnect', (reason) => {
