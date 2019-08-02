@@ -86,7 +86,6 @@ export default class DrawerApp extends App {
     }
 
     onBezelRotate(e) {
-        console.log(e);
         let oldFocus = this._curFocus;
         if (e.direction === "CW" && this._curFocus < this._apps.length - 1) {
             this._curFocus += 1;

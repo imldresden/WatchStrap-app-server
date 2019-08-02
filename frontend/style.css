@@ -28,7 +28,7 @@ iframe {
     border: solid white 2px;
 }
 
-iframe_watch-surface {
+iframe#WATCH-surface {
     border-radius: 50%;
 }
 
