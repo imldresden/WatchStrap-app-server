@@ -49,8 +49,8 @@ class Main {
 
     constructor() {
         this._availApps = [
-            ActivityTracker,
             MusicPlayer,
+            ActivityTracker,
             SmartHome,
             TestApp
         ];
@@ -165,7 +165,7 @@ class Main {
             debugElem.classList = "off";
         }
 
-        this.loadApp(Drawer);
+        this.loadApp(MusicPlayer);
     }
 
     loadApp(app) {
@@ -283,7 +283,9 @@ class Main {
         this._surfaces[surId] = surface;
         let noSsvg = (new URL(window.location.href)).searchParams.get("noSsvg");
         if (noSsvg === null)
-            new surface.window.SSVG({onDrawn: () => this.onSurfaceUpdate(surId)});
+            new surface.window.SSVG({
+                onDrawn: () => this.onSurfaceUpdate(surId)
+            });
 
         if (Object.keys(this._surfaces).length === 3 && !this._curApp) {
             if (this._nextApp === Drawer) {
