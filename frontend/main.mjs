@@ -5,6 +5,7 @@ import ActivityTracker from './apps/activity-tracker.mjs';
 import MusicPlayer from './apps/music-player.mjs';
 import SmartHome from './apps/smart-home.mjs';
 import MapFinder from './apps/map-finder.mjs';
+import MoodBand from './apps/mood-band.mjs';
 
 const idMain = "MAIN";
 const idWatch = "WATCH";
@@ -84,6 +85,7 @@ class Main {
             ActivityTracker,
             SmartHome,
             MapFinder,
+            MoodBand,
             TestApp
         ];
 
