@@ -26,6 +26,7 @@ export default class MusicPlayer extends App{
     _pausedDuration;
     _curTimer;
     _timePassed;
+    _fontSize;
 
     constructor(watch, loStrap, upStrap) {
         super(watch, loStrap, upStrap);
@@ -64,6 +65,25 @@ export default class MusicPlayer extends App{
         ];
         this._curFocus = 0;
 
+        this._fontSize = {
+            loStrap: {
+                'small': loStrap.dpi < 150 ? 11 : 16,
+                'normal': loStrap.dpi < 150 ? 15 : 22
+            },
+            upStrap: {
+                'small': loStrap.dpi < 150 ? 10 : 16,
+                'normal': loStrap.dpi < 150 ? 16 : 22
+            },
+            watch: {
+                'small': 18,
+                'normal': 24,
+                'large': 30
+            }
+        }
+
+        //this._upStrap.svg.attr('transform', 'rotate(180) translate(270, 620)');
+
+        this._upCon = this._upStrap.svg.append('g');
         this._backgroundWatch = this._watch.svg.append('g').attr('id', 'backgroundWatch');
         this._scrollConWatch = this._watch.svg.append('g').attr('id', 'scrollConWatch');
         this._scrollConLoStrap = this._loStrap.svg.append('g').attr('id', 'scrollConLoStrap');
@@ -109,7 +129,7 @@ export default class MusicPlayer extends App{
         this._scrollConWatch.append('text')
             .text(this._playlists[playlistIndex].name)
             .attr('text-anchor', 'middle')
-            .style('font', '30px sans-serif')
+            .style('font', this._fontSize.watch.large + 'px sans-serif')
             .attr('x', this._watch.width / 2)
             .attr('y', 170)
             .attr("fill", 'white');  
@@ -117,7 +137,7 @@ export default class MusicPlayer extends App{
         this._scrollConWatch.append('text')
             .text(this._playlists[playlistIndex].songs + " songs")
             .attr('text-anchor', 'middle')
-            .style('font', '18px sans-serif')
+            .style('font', this._fontSize.watch.small + 'px sans-serif')
             .attr('x', this._watch.width / 2)
             .attr('y', 220)
             .attr("fill", 'white');
@@ -125,7 +145,7 @@ export default class MusicPlayer extends App{
         this._scrollConWatch.append('text')
             .text("Created: " + MusicPlayer.formatDate(data[0].addedAt))
             .attr('text-anchor', 'middle')
-            .style('font', '18px sans-serif')
+            .style('font', this._fontSize.watch.small + 'px sans-serif')
             .attr('x', this._watch.width / 2)
             .attr('y', 260)
             .attr("fill", 'white');
@@ -136,8 +156,8 @@ export default class MusicPlayer extends App{
             .attr("href", () => MusicPlayer.randomCoverUrl())
             .attr('x', 0)
             .attr('y', (d, i) => this._watch.height * (i + 1))
-            .attr('height', 380)
-            .attr('width', 380);
+            .attr('height', 360)
+            .attr('width', 360);
 
         this._scrollConWatch.append('g').selectAll('rect')
             .data(data)
@@ -153,7 +173,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.trackName)
             .attr('text-anchor', 'left')
-            .style('font', '24px sans-serif')
+            .style('font', this._fontSize.watch.normal + 'px sans-serif')
             .attr('x', 15)
             .attr('y', (d, i) => 210 + this._watch.height * (i + 1))
             .attr("fill", 'white');
@@ -163,7 +183,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.artistName)
             .attr('text-anchor', 'left')
-            .style('font', '18px sans-serif')
+            .style('font', this._fontSize.watch.small + 'px sans-serif')
             .attr('x', 30)
             .attr('y', (d, i) => 240 + this._watch.height * (i + 1))
             .attr("fill", 'lightgray');
@@ -173,7 +193,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.albumName)
             .attr('text-anchor', 'left')
-            .style('font', '18px sans-serif')
+            .style('font', this._fontSize.watch.small + 'px sans-serif')
             .attr('x', 45)
             .attr('y', (d, i) => 265 + this._watch.height * (i + 1))
             .attr("fill", 'lightgray');
@@ -183,7 +203,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => { return MusicPlayer.formatDuration(d.trackDuration); })
             .attr('text-anchor', 'left')
-            .style('font', '18px sans-serif')
+            .style('font', this._fontSize.watch.small + 'px sans-serif')
             .attr('x', 70)
             .attr('y', (d, i) => 290 + this._watch.height * (i + 1))
             .attr("fill", 'lightgray');
@@ -197,7 +217,7 @@ export default class MusicPlayer extends App{
         this._overlayWatch.append('text')
             .text('PLAY')
             .attr('text-anchor', 'middle')
-            .style('font', '24px sans-serif')
+            .style('font', this._fontSize.watch.normal + 'px sans-serif')
             .attr('x', 180)
             .attr('y', 78)
             .attr("fill", 'white');
@@ -207,21 +227,21 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.trackName)
             .attr('text-anchor', 'left')
-            .attr('x', 15)
-            .style('font', '22px sans-serif')
-            .attr('y', (d, i) => i * 80 + 22 + 20)
+            .attr('x', this._loStrap.width * 0.05)
+            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('y', (d, i) => (i * this._fontSize.loStrap.normal * 3.5) + this._fontSize.loStrap.normal * 2)
             .attr("fill", 'white');
         this._scrollConLoStrap.append('g').selectAll('text')
             .data(data)
             .enter().append('text')
             .text((d) => d.artistName + " - " + d.albumName)
             .attr('text-anchor', 'left')
-            .attr('x', 15)
-            .style('font', '16px sans-serif')
-            .attr('y', (d, i) => i * 80 + 16 + 50)
-            .attr("fill", 'gray');
+            .attr('x', this._loStrap.width * 0.05)
+            .style('font', this._fontSize.loStrap.small + 'px sans-serif')
+            .attr('y', (d, i) => (i * this._fontSize.loStrap.normal * 3.5) + this._fontSize.loStrap.small * 1.5 + this._fontSize.loStrap.normal * 2)
+            .attr("fill", this._loStrap.colorMode === 'bw' ? 'white' : 'gray');
 
-        this._scrollStepSizeLoStrap = 80;
+        this._scrollStepSizeLoStrap = this._fontSize.loStrap.normal * 3.5;
     }
 
     loadPlaylistOverview() {
@@ -233,7 +253,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.name)
             .attr('text-anchor', 'middle')
-            .style('font', '24px sans-serif')
+            .style('font', this._fontSize.watch.normal + 'px sans-serif')
             .attr('x', this._watch.width / 2)
             .attr('y', (d, i) => 270 + this._watch.height * i)
             .attr("fill", 'white');  
@@ -243,7 +263,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.songs + " songs")
             .attr('text-anchor', 'middle')
-            .style('font', '18px sans-serif')
+            .style('font', this._fontSize.watch.small + 'px sans-serif')
             .attr('x', this._watch.width / 2)
             .attr('y', (d, i) => 300 + this._watch.height * i)
             .attr("fill", 'white');
@@ -256,7 +276,7 @@ export default class MusicPlayer extends App{
             .attr('y', (d, i) => 70 + this._watch.height * i)
             .attr('height', 160)
             .attr('width', 160);
-        
+                
         let listLo = this._scrollConLoStrap.selectAll('text')
             .data(this._playlists);
 
@@ -265,7 +285,7 @@ export default class MusicPlayer extends App{
             .text((d) => d.name)
             .attr('text-anchor', 'middle')
             .attr('x', this._loStrap.width / 2)
-            .style('font', '22px sans-serif')
+            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
             .attr('y', (d, i) => (i - 1) * 70 + 30)
             .attr("fill", 'white');
 
@@ -290,11 +310,11 @@ export default class MusicPlayer extends App{
     }
 
     loadControls() {
-        this._upStrap.svg.append('image')
+        this._upCon.append('image')
             .attr('id', 'play-pause')
-            .attr("href", "/assets/music-player/icons/play_white_120x120.png")
+            .attr("href", "/assets/music-player/icons/play_white_120x120_rot180.png")
             .attr('x', this._upStrap.width / 2 - 15)
-            .attr('y', this._upStrap.height - 80)
+            .attr('y', 55)
             .attr('height', 30)
             .attr('width', 30)
             .on('mousedown', () => {
@@ -306,81 +326,83 @@ export default class MusicPlayer extends App{
                 }
             });
 
-        this._upStrap.svg.append('image')
+        this._upCon.append('image')
             .attr("href", "/assets/music-player/icons/rev_white_120x120.png")
             .attr('x', this._upStrap.width / 4 - 12)
-            .attr('y', this._upStrap.height - 77)
+            .attr('y', 58)
             .attr('height', 24)
             .attr('width', 24)
             .on('mousedown', () => this.prev());;
 
-        this._upStrap.svg.append('image')
+        this._upCon.append('image')
             .attr("href", "/assets/music-player/icons/skip_white_120x120.png")
             .attr('x', this._upStrap.width * 0.75 - 12)
-            .attr('y', this._upStrap.height - 77)
+            .attr('y', 58)
             .attr('height', 24)
             .attr('width', 24)
             .on('mousedown', () => this.next());
 
-        this._upStrap.svg.append('line')
-            .attr('x1', 15)
-            .attr('y1', this._upStrap.height - 100)
-            .attr('x2', this._upStrap.width - 15)
-            .attr('y2', this._upStrap.height - 100)
+        this._upCon.append('line')
+            .attr('x1', this._upStrap.width - 15)
+            .attr('y1', 100)
+            .attr('x2', 15)
+            .attr('y2', 100)
             .attr('stroke', 'gray');
 
-        this._upStrap.svg.append('line')
+        this._upCon.append('line')
             .attr('id', 'progress-line')
-            .attr('x1', 15)
-            .attr('y1', this._upStrap.height - 100)
-            .attr('x2', 15)
-            .attr('y2', this._upStrap.height - 100)
+            .attr('x1', this._upStrap.width - 15)
+            .attr('y1', 100)
+            .attr('x2', this._upStrap.width - 15)
+            .attr('y2', 100)
             .attr('stroke', 'deepskyblue')
             .attr('stroke-width', 2);
 
-        this._upStrap.svg.append('circle')
+        this._upCon.append('circle')
             .attr('id', 'progress-circle')
-            .attr('cx', 15)
-            .attr('cy', this._upStrap.height - 100)
+            .attr('cx', this._upStrap.width - 15)
+            .attr('cy', 100)
             .attr('r', 5)
             .attr('fill', 'deepskyblue');
 
-        this._upStrap.svg.append('text')
+        this._upCon.append('text')
             .text("Play: " + this._playlists[0].name)
             .attr('text-anchor', 'left')
             .attr('x', 15)
             .style('font', '18px sans-serif')
-            .attr('y', this._upStrap.height - 18)
+            .attr('transform', 'rotate(180) translate(270, 36)')
+            .attr('y', 18)
             .attr("fill", 'white');
 
         this.updateControls();
     }
 
     updateControls() {
+        let upCon = this._upCon;
         switch (this._curState) {
             case MusicPlayer.states.playing:
                 let song = this._curPlaying[2][this._curPlaying[1]];
-                this._upStrap.svg.select('text')
+                this._upCon.select('text')
                     .text(song.trackName + " - " + song.artistName)
                     .attr("fill", "deepskyblue");
-                this._upStrap.svg.select('#play-pause')
+                this._upCon.select('#play-pause')
                     .attr("href", "/assets/music-player/icons/pause_white_120x120.png")
                 this.updateProgress(new Date());
                 this.highlightPlayingSong();
                 break;
             case MusicPlayer.states.paused:
-                this._upStrap.svg.select('#play-pause')
+                this._upCon.select('#play-pause')
                     .attr("href", "/assets/music-player/icons/play_white_120x120.png")
-                this._upStrap.svg.select('text')
+                this._upCon.select('text')
                     .attr("fill", "white");
                 break;
             case MusicPlayer.states.stopped:
                     switch (this._curMode) {
                         case MusicPlayer.modes.allPlaylists:
-                            this._upStrap.svg.select('text').text("Play: " + this._playlists[this._curFocus].name);
+                            this._upCon.select('text').text("Play: " + this._playlists[this._curFocus].name);
                             break;
                         case MusicPlayer.modes.playlistView:
-                            this._upStrap.svg.select('text').text("Play: " + this._playlists[this._lastPlaylistIndex].name);
+                            this._upCon.select('text').text("Play: " + this._playlists[this._lastPlaylistIndex].name);
                             break;
                         case MusicPlayer.modes.playQueue:
                             break;
@@ -390,6 +412,7 @@ export default class MusicPlayer extends App{
     }
 
     updateProgress(startTime) {
+        let upCon = this._upCon;
         if (this._pausedDuration) {
             startTime = startTime - this._pausedDuration;
             this._pausedDuration = undefined;
@@ -398,18 +421,18 @@ export default class MusicPlayer extends App{
         this._timePassed = timePassed;
         let song = this._curPlaying[2][this._curPlaying[1]];
         let length = song.trackDuration;
-        let x = (this._upStrap.width - 30) * (timePassed / length) + 15;
+        let x = (this._upStrap.width - 15) - (this._upStrap.width - 30) * (timePassed / length);
 
         if (length - timePassed > 200 && this._curState !== MusicPlayer.states.paused) {
             this._curTimer = setTimeout(() => this.updateProgress(startTime), 200);
         } else {
-            x = this._upStrap.width - 15;
+            x = 15;
             setTimeout(() => this.next(), length - timePassed);
         }
 
-        this._upStrap.svg.select('#progress-line')
+        this._upCon.select('#progress-line')
             .attr('x2', x);
-        this._upStrap.svg.select('#progress-circle')
+        this._upCon.select('#progress-circle')
             .attr('cx', x);  
     }
 
@@ -421,7 +444,7 @@ export default class MusicPlayer extends App{
                         .attr("fill", "white");
                     this._scrollConLoStrap.select('#strap-tracknames').selectAll('text')
                         .filter((d, i) => i === this._curPlaying[1])
-                        .attr("fill", "deepskyblue");
+                        .attr("fill", this._loStrap.colorMode === 'bw' ? 'white' : "deepskyblue");
 
                     this._scrollConWatch.select('#watch-tracknames').selectAll('text')
                         .attr("fill", "white");
@@ -442,7 +465,7 @@ export default class MusicPlayer extends App{
         clearTimeout(this._curTimer);
         this._curTimer = undefined;
         this._curState = MusicPlayer.states.paused;
-        let ratio = (this._upStrap.svg.select('#progress-line').attr('x2') - 15) / (this._upStrap.width - 30);
+        let ratio = (this._upCon.select('#progress-line').attr('x2') - 15) / (this._upStrap.width - 30);
         this._pausedDuration = this._timePassed;
         this.updateControls();
     }
@@ -511,13 +534,18 @@ export default class MusicPlayer extends App{
             if (elapsed > 500) {
                 t.stop();
                 this._scrollConWatch.attr('transform', 'translate(0, ' + watchInter(1) + ')');
-                this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
+                if (this._loStrap.type !== 'eink')
+                    this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
                 return;
             }
             this._scrollConWatch.attr('transform', 'translate(0, ' + watchInter(elapsed / 500) + ')');
-            this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(elapsed / 500) + ')');
+            if (this._loStrap.type !== 'eink')
+                this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(elapsed / 500) + ')');
             
         });
+
+        if (this._loStrap.type === 'eink')
+            this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
     }
 
     onHwkey(e) {
