@@ -57,7 +57,7 @@ const setups = {
         LOWER_STRAP: 'digitalLowerStrap',
     },
     einkPrototype: {
-        UPPER_STRAP: 'digitalUpperStrap',
+        UPPER_STRAP: 'einkBw',
         WATCH: 'watchGearS3',
         LOWER_STRAP: 'einkBw',
     }
@@ -73,6 +73,7 @@ class Main {
     _surfaces = {};
     _surfacesLastUpdate = {};
     _surfacesTimer = {};
+    _curSetup = 'einkPrototype';
 
     appContainer;
 
@@ -196,6 +197,20 @@ class Main {
         this._surfacesLastUpdate[idLowerStrap] = now;
         this._surfacesLastUpdate[idUpperStrap] = now;
 
+        if (localStorage.getItem('debug-setup'))
+            this._curSetup = localStorage.getItem('debug-setup');
+
+        let setupSelect = document.getElementById('debug-setup');
+        for (let setup in setups) {
+            let opt = document.createElement('option');
+            opt.value = setup;
+            opt.innerHTML = setup;
+            if (setup === this._curSetup)
+                opt.selected = 'selected';
+            setupSelect.appendChild(opt);
+        }
+        setupSelect.addEventListener('change', () => this.onSetupChange());
+
         // Load values from debug inputs / local storage; register listener
         let debugInputs = document.getElementById('debug').getElementsByTagName('input');
         for (let debugInput of debugInputs) {
@@ -229,7 +244,7 @@ class Main {
 
         this._nextApp = app;
 
-        this.loadSurfaces(setups.einkPrototype);
+        this.loadSurfaces(setups[this._curSetup]);
 
         let debugInputs = document.getElementById('debug').getElementsByTagName('input');
         for (let debugInput of debugInputs) {
@@ -330,6 +345,14 @@ class Main {
             case 'hwkey':
                 this.dispatchHwkeyEvent(msg.payload);
                 break;
+        }
+    }
+
+    onSetupChange() {
+        let selectedSetup = document.getElementById('debug-setup').value;
+        if (selectedSetup !== this._curSetup) {
+            this._curSetup = selectedSetup;
+            this.loadApp(this._nextApp);
         }
     }
 
