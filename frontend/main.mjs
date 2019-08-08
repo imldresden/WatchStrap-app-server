@@ -4,6 +4,7 @@ import Drawer from './apps/drawer.mjs';
 import ActivityTracker from './apps/activity-tracker.mjs';
 import MusicPlayer from './apps/music-player.mjs';
 import SmartHome from './apps/smart-home.mjs';
+import MapFinder from './apps/map-finder.mjs';
 
 const idMain = "MAIN";
 const idWatch = "WATCH";
@@ -82,6 +83,7 @@ class Main {
             MusicPlayer,
             ActivityTracker,
             SmartHome,
+            MapFinder,
             TestApp
         ];
 
