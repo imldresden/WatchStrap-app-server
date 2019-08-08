@@ -310,13 +310,16 @@ export default class MusicPlayer extends App{
     }
 
     loadControls() {
+        let controlSizeLg = this._upStrap.width / 5;
+        let controlSizeMd = this._upStrap.width / 6;
         this._upCon.append('image')
             .attr('id', 'play-pause')
-            .attr("href", "/assets/music-player/icons/play_white_120x120_rot180.png")
-            .attr('x', this._upStrap.width / 2 - 15)
-            .attr('y', 55)
-            .attr('height', 30)
-            .attr('width', 30)
+            .attr("href", "/assets/music-player/icons/play_white_120x120.png")
+            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
+            .attr('x', this._upStrap.width / 2 - controlSizeLg / 2)
+            .attr('y', -this._upStrap.height * .22)
+            .attr('height', controlSizeLg)
+            .attr('width', controlSizeLg)
             .on('mousedown', () => {
                 console.log('down');
                 if (this._curState === MusicPlayer.states.playing) {
@@ -328,50 +331,53 @@ export default class MusicPlayer extends App{
 
         this._upCon.append('image')
             .attr("href", "/assets/music-player/icons/rev_white_120x120.png")
-            .attr('x', this._upStrap.width / 4 - 12)
-            .attr('y', 58)
-            .attr('height', 24)
-            .attr('width', 24)
-            .on('mousedown', () => this.prev());;
+            .attr('x', this._upStrap.width / 4 - controlSizeMd / 2)
+            .attr('y', -this._upStrap.height * .22 + (controlSizeLg - controlSizeMd) / 2)
+            .attr('height', controlSizeMd)
+            .attr('width', controlSizeMd)
+            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
+            .on('mousedown', () => this.prev());
 
         this._upCon.append('image')
             .attr("href", "/assets/music-player/icons/skip_white_120x120.png")
-            .attr('x', this._upStrap.width * 0.75 - 12)
-            .attr('y', 58)
-            .attr('height', 24)
-            .attr('width', 24)
+            .attr('x', this._upStrap.width * 0.75 - controlSizeMd / 2)
+            .attr('y', -this._upStrap.height * .22 + (controlSizeLg - controlSizeMd) / 2)
+            .attr('height', controlSizeMd)
+            .attr('width', controlSizeMd)
+            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
             .on('mousedown', () => this.next());
 
         this._upCon.append('line')
-            .attr('x1', this._upStrap.width - 15)
-            .attr('y1', 100)
-            .attr('x2', 15)
-            .attr('y2', 100)
-            .attr('stroke', 'gray');
+            .attr('x1', this._upStrap.width - this._upStrap.width * 0.1)
+            .attr('y1', this._upStrap.height * 0.05)
+            .attr('x2', this._upStrap.width * 0.1)
+            .attr('y2', this._upStrap.height * 0.05)
+            .attr('stroke', this._upStrap.colorMode === 'bw' ? 'white' : 'gray')
+            .attr('stroke-width', 2);
 
         this._upCon.append('line')
             .attr('id', 'progress-line')
-            .attr('x1', this._upStrap.width - 15)
-            .attr('y1', 100)
-            .attr('x2', this._upStrap.width - 15)
-            .attr('y2', 100)
-            .attr('stroke', 'deepskyblue')
-            .attr('stroke-width', 2);
+            .attr('x1', this._upStrap.width - this._upStrap.width * 0.1)
+            .attr('y1', this._upStrap.height * 0.05)
+            .attr('x2', this._upStrap.width - this._upStrap.width * 0.1)
+            .attr('y2', this._upStrap.height * 0.05)
+            .attr('stroke', this._upStrap.colorMode === 'bw' ? 'white' : 'deepskyblue')
+            .attr('stroke-width', this._upStrap.colorMode === 'bw' ? 3 : 2);
 
         this._upCon.append('circle')
             .attr('id', 'progress-circle')
-            .attr('cx', this._upStrap.width - 15)
-            .attr('cy', 100)
-            .attr('r', 5)
-            .attr('fill', 'deepskyblue');
+            .attr('cx', this._upStrap.width - this._upStrap.width * 0.1)
+            .attr('cy', this._upStrap.height * 0.05)
+            .attr('r', this._upStrap.width * 0.05)
+            .attr('fill', this._upStrap.colorMode === 'bw' ? 'white' : 'deepskyblue');
 
         this._upCon.append('text')
             .text("Play: " + this._playlists[0].name)
             .attr('text-anchor', 'left')
-            .attr('x', 15)
-            .style('font', '18px sans-serif')
-            .attr('transform', 'rotate(180) translate(270, 36)')
-            .attr('y', 18)
+            .attr('x', this._upStrap.width * 0.05)
+            .style('font', this._fontSize.upStrap.small + 'px sans-serif')
+            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
+            .attr('y', -this._upStrap.height * .3)
             .attr("fill", 'white');
 
         this.updateControls();
@@ -384,7 +390,7 @@ export default class MusicPlayer extends App{
                 let song = this._curPlaying[2][this._curPlaying[1]];
                 this._upCon.select('text')
                     .text(song.trackName + " - " + song.artistName)
-                    .attr("fill", "deepskyblue");
+                    .attr("fill", this._upStrap.colorMode === 'bw' ? 'white' : "deepskyblue");
                 this._upCon.select('#play-pause')
                     .attr("href", "/assets/music-player/icons/pause_white_120x120.png")
                 this.updateProgress(new Date());
@@ -421,10 +427,12 @@ export default class MusicPlayer extends App{
         this._timePassed = timePassed;
         let song = this._curPlaying[2][this._curPlaying[1]];
         let length = song.trackDuration;
-        let x = (this._upStrap.width - 15) - (this._upStrap.width - 30) * (timePassed / length);
+        let x = (this._upStrap.width - this._upStrap.width * 0.1) - (this._upStrap.width - (this._upStrap.width * 0.1 * 2)) * (timePassed / length);
 
-        if (length - timePassed > 200 && this._curState !== MusicPlayer.states.paused) {
-            this._curTimer = setTimeout(() => this.updateProgress(startTime), 200);
+        let updateInterval = this._upStrap.type === "eink" ? 1000 : 200;
+
+        if (length - timePassed > updateInterval && this._curState !== MusicPlayer.states.paused) {
+            this._curTimer = setTimeout(() => this.updateProgress(startTime), updateInterval);
         } else {
             x = 15;
             setTimeout(() => this.next(), length - timePassed);
