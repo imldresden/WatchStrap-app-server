@@ -25,7 +25,7 @@ const displayConfigs = {
         width: 104,
         height: 212,
         dpi: 105,
-        updateInterval: 500,
+        updateInterval: 1000,
         type: 'eink',
         imageFormat: 'bitarray',
         color: 'bw'
@@ -235,7 +235,7 @@ class Main {
             debugElem.classList = "off";
         }
 
-        this.loadApp(MusicPlayer);
+        this.loadApp(Drawer);
     }
 
     loadApp(app) {
@@ -385,6 +385,8 @@ class Main {
 
     onSurfaceUpdate(surId) {
         let surface = this._surfaces[surId];
+        if (!surface)
+            return;
         let lastUpdate = this._surfacesLastUpdate[surId];
         let timer = this._surfacesTimer[surId];
         let now = Date.now();
@@ -412,7 +414,6 @@ class Main {
                     invert: surface.converting.invert,
                     payload: imgData
                 };
-                console.log(msg);
                 this._socket.emit('convert', msg);
             } else if (surface.imageFormat === 'jpeg') {
                 let imgData = canvas.toDataURL("image/jpeg", 0.6);
