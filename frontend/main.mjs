@@ -317,6 +317,7 @@ class Main {
         switch (msg.type) {
             case 'connect':
                 console.debug('device connected:', msg.identifier);
+                this.onSurfaceUpdate(msg.identifier);
                 break;
             case 'disconnect':
                 console.debug('device disconnected:', msg.identifier);
