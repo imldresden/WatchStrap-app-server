@@ -93,10 +93,8 @@ io.on('connection', client => {
                             width: 104,
                             height: 212,
                             fitmode: "none",
-                            colormode: msg.invert ? 'normal' : 'invert',
-                            fillmode: msg.invert ? 'normal' : 'invert'
-                            // normal flag creates an inverted version;
-                            // therefore msg.invert is activating the normal mode
+                            colormode: msg.invert ? 'invert' : 'normal',
+                            fillmode: msg.invert ? 'invert' : 'normal'
                         }
                     }).then(byteArray => {
                         let dataAsInt = byteArray.map(byte => parseInt(byte, 16));
