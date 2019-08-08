@@ -6,10 +6,19 @@ export default class Surface {
     _parent;
     _onLoadedCallback;
 
+    converting = {
+        dithering: false,
+        invert: true
+    };
+
     get id() { return this._id; }
     get width() { return this._displayConfig.width; }
     get height() { return this._displayConfig.height; }
-    get colorMode () { return this._displayConfig.color; }
+    get type() { return this._displayConfig.type; }
+    get colorMode() { return this._displayConfig.color; }
+    get dpi() { return this._displayConfig.dpi; }
+    get imageFormat() { return this._displayConfig.imageFormat; }
+    get updateInterval() { return this._displayConfig.updateInterval; }
     get window() { return this._iframe.contentWindow; }
     get document() { return this.window.document; }
     get d3() { return this.window.d3; }

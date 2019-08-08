@@ -15,24 +15,53 @@ const displayConfigs = {
     watchGearS3: {
         width: 360,
         height: 360,
+        dpi: 278,
+        updateInterval: 100,
+        type: 'oled',
+        imageFormat: 'jpeg',
         color: 'full'
     },
     einkBw: {
-        width: 220,
-        height: 400,
+        width: 104,
+        height: 212,
+        dpi: 105,
+        updateInterval: 500,
+        type: 'eink',
+        imageFormat: 'bitarray',
         color: 'bw'
     },
     digitalUpperStrap: {
         width: 270,
         height: 620,
+        dpi: 274,
+        updateInterval: 0,
+        type: 'onscreen',
+        imageFormat: 'none',
         color: 'full'
     },
     digitalLowerStrap: {
         width: 270,
         height: 900,
+        dpi: 274,
+        updateInterval: 0,
+        type: 'onscreen',
+        imageFormat: 'none',
         color: 'full'
     }
 };
+
+const setups = {
+    tablet: {
+        UPPER_STRAP: 'digitalUpperStrap',
+        WATCH: 'watchGearS3',
+        LOWER_STRAP: 'digitalLowerStrap',
+    },
+    einkPrototype: {
+        UPPER_STRAP: 'digitalUpperStrap',
+        WATCH: 'watchGearS3',
+        LOWER_STRAP: 'einkBw',
+    }
+}
 
 class Main {
 
@@ -94,6 +123,32 @@ class Main {
     dispatchHwkeyEvent(event) {
         if (this._curApp)
             this._curApp.onHwkey(event);
+    }
+
+    dispatchSoftPotTouch(surId, event) {
+        let surface = this._surfaces[surId];
+        if (!this._curApp || !surface)
+            return;
+
+        let xPos = (x) => { return (surface.width / 4 * x) }
+        let canvas = surface.document.getElementsByTagName('canvas')[0];
+        let newEvent = surface.document.createEvent('MouseEvent');
+
+        let type;
+        switch(event.type)
+        {
+            case "touchstart": type = "mousedown"; break;
+            case "touchmove":  type = "mousemove"; break;
+            case "touchend":   type = "mouseup";   break;
+            default:           return;
+        }
+
+        newEvent.initMouseEvent(type, true, true, surface.document.defaultView, 0,
+            xPos(event.pos.x), event.pos.y, xPos(event.pos.x), event.pos.y, false, false, false, false, 0, canvas
+        );
+
+        canvas.dispatchEvent(newEvent);
+        console.debug(`dispatched event ${event.type} as ${type}:`, event, newEvent);
     }
 
     dispatchTouchEvent(surId, event) {
@@ -174,11 +229,7 @@ class Main {
 
         this._nextApp = app;
 
-        this.loadSurfaces({
-            UPPER_STRAP: 'digitalUpperStrap',
-            WATCH: 'watchGearS3',
-            LOWER_STRAP: 'digitalLowerStrap',
-        });
+        this.loadSurfaces(setups.einkPrototype);
 
         let debugInputs = document.getElementById('debug').getElementsByTagName('input');
         for (let debugInput of debugInputs) {
@@ -224,7 +275,7 @@ class Main {
                     document.getElementById('debug-overall-scale').value);
                 break;
             case "debug-spacing":
-                document.getElementById(idUpperStrap + "-surface").style.transform = `translate(0, -${input.value}px)`;
+                document.getElementById(idUpperStrap + "-surface").style.transform = `translate(0, -${input.value}px) rotate(180deg)`;
                 document.getElementById(idLowerStrap + "-surface").style.transform = `translate(0, ${input.value}px)`;
                 break;
         }
@@ -270,6 +321,9 @@ class Main {
             case 'touch':
                 this.dispatchTouchEvent(msg.sender, msg.payload);
                 break;
+            case 'softpottouch':
+                this.dispatchSoftPotTouch(msg.sender, msg.payload);
+                break;
             case 'bezelrotate':
                 this.dispatchBezelEvent(msg.payload);
                 break;
@@ -310,25 +364,41 @@ class Main {
         let lastUpdate = this._surfacesLastUpdate[surId];
         let timer = this._surfacesTimer[surId];
         let now = Date.now();
-        if (now - lastUpdate <= 20 && !timer) {
+        if (now - lastUpdate <= surface.updateInterval && !timer) {
             this._surfacesTimer[surId] = setTimeout(() => {
                 this._surfacesTimer[surId] = undefined;
                 this.onSurfaceUpdate(surId);
-            }, 25);
+            }, surface.updateInterval);
             return;
         } else if (timer)
             return;
 
         setTimeout(() => {
             let canvas = surface.document.getElementsByTagName('canvas')[0];
-            let imgData = canvas.toDataURL("image/jpeg", 0.6);
-            let msg = {
-                target: surId,
-                type: 'imageData',
-                payload: imgData
-            };
-
-            this._socket.emit('msg', msg);
+            if (surface.imageFormat === 'bitarray') {
+                let imgData = canvas.toDataURL("image/jpeg", 1);
+                let msg = {
+                    target: surId,
+                    type: 'imageData',
+                    size: {
+                        width: surface.width,
+                        height: surface.height
+                    },
+                    dithering: surface.converting.dithering,
+                    invert: surface.converting.invert,
+                    payload: imgData
+                };
+                console.log(msg);
+                this._socket.emit('convert', msg);
+            } else if (surface.imageFormat === 'jpeg') {
+                let imgData = canvas.toDataURL("image/jpeg", 0.6);
+                let msg = {
+                    target: surId,
+                    type: 'imageData',
+                    payload: imgData
+                };
+                this._socket.emit('msg', msg);
+            }
             this._surfacesLastUpdate[surId] = Date.now();
         }, 10);
     }
