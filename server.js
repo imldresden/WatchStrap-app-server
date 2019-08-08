@@ -148,8 +148,9 @@ io.on('connection', client => {
         let identifier = getIdentifierByClientId(client.id);
         connectionMap.delete(identifier);
 
-        if (connectionMap[idMain] !== undefined)
-            connectionMap[idMain].emit('info', {
+
+        if (connectionMap.has(idMain))
+            connectionMap.get(idMain).emit('info', {
                 type: 'disconnect',
                 identifier: identifier
             });
@@ -157,9 +158,11 @@ io.on('connection', client => {
 });
 
 function getIdentifierByClientId(clientId) {
-    return connectionMap.forEach((client, identifier) => {
-        if (client.id === clientId) return identifier;
+    let elem;
+    connectionMap.forEach((client, identifier) => {
+        if (client.id === clientId) elem = identifier;
     });
+    return elem;
 }
 
 http.listen(port, function () {
