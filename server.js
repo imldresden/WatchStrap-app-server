@@ -70,16 +70,6 @@ io.on('connection', client => {
                 imgData = Dither.atkinson(imgData);
                 ctx.putImageData(imgData, 0, 0);
             }
-            if (msg.invert) {
-                let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                let data = imgData.data;
-                for (let i=0; i < data.length; i+=4) {
-                    data[i] = 255 - data[i];
-                    data[i+1] = 255 - data[i+1];
-                    data[i+2] = 255 - data[i+2];
-                }
-                ctx.putImageData(imgData, 0, 0);
-            }
             // Generate bitmap via JPEGStream
             stream = canvas.createJPEGStream({
                 quality: 1,
@@ -103,8 +93,10 @@ io.on('connection', client => {
                             width: 104,
                             height: 212,
                             fitmode: "none",
-                            colormode: msg.invert ? 'invert' : 'normal',
-                            fillmode: msg.invert ? 'invert' : 'normal'
+                            colormode: msg.invert ? 'normal' : 'invert',
+                            fillmode: msg.invert ? 'normal' : 'invert'
+                            // normal flag creates an inverted version;
+                            // therefore msg.invert is activating the normal mode
                         }
                     }).then(byteArray => {
                         let dataAsInt = byteArray.map(byte => parseInt(byte, 16));
