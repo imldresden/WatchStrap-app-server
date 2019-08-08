@@ -136,6 +136,7 @@ class Main {
             return;
 
         let xPos = (x) => { return (surface.width / 4 * x) }
+        let yPos = (y) => { return (y / 1023) * surface.height}
         let canvas = surface.document.getElementsByTagName('canvas')[0];
         let newEvent = surface.document.createEvent('MouseEvent');
 
@@ -149,7 +150,7 @@ class Main {
         }
 
         newEvent.initMouseEvent(type, true, true, surface.document.defaultView, 0,
-            xPos(event.pos.x), event.pos.y, xPos(event.pos.x), event.pos.y, false, false, false, false, 0, canvas
+            xPos(event.pos.x), yPos(event.pos.y), xPos(event.pos.x), yPos(event.pos.y), false, false, false, false, 0, canvas
         );
 
         canvas.dispatchEvent(newEvent);
