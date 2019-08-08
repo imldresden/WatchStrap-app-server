@@ -13,6 +13,27 @@ export default class DrawerApp extends App {
         this._apps = availApps;
         this._curFocus = 0;
 
+        this._fontSize = {
+            loStrap: {
+                'small': loStrap.dpi < 150 ? 11 : 16,
+                'normal': loStrap.dpi < 150 ? 15 : 22
+            },
+            upStrap: {
+                'small': loStrap.dpi < 150 ? 10 : 16,
+                'normal': loStrap.dpi < 150 ? 16 : 22
+            },
+            watch: {
+                'small': 18,
+                'normal': 24,
+                'large': 30
+            }
+        }
+
+        this._scrollStepSize = {
+            loStrap: 0,
+            watch: 0
+        }
+
         this.initApp();
     }
 
@@ -27,7 +48,7 @@ export default class DrawerApp extends App {
             .attr('text-anchor', 'middle')
             .style('font', '34px sans-serif')
             .attr('x', this._watch.width / 2)
-            .attr('y', (d, i) => (this._watch.height / 2) - 20 + this._watch.height * i)
+            .attr('y', (d, i) => (this._watch.height / 2) + 20 + this._watch.height * i)
             .attr("fill", 'white');  
         
         watchCon.append('g').selectAll('text')
@@ -37,42 +58,141 @@ export default class DrawerApp extends App {
             .attr('text-anchor', 'middle')
             .style('font', '20px sans-serif')
             .attr('x', this._watch.width / 2)
-            .attr('y', (d, i) => (this._watch.height / 2) + 40 + this._watch.height * i)
+            .attr('y', (d, i) => (this._watch.height / 2) + 60 + this._watch.height * i)
             .attr("fill", 'white');
+
+        watchCon.append('g').selectAll('image')
+            .data(this._apps)
+            .enter().append('image')
+            .attr("href", (d) => '/assets/' + d.name.toLowerCase().replace(" ", "-") + '/favicon.png')
+            .attr('x', this._watch.width / 2 - this._watch.width * 0.075)
+            .attr('y', (d, i) => this._watch.width * 0.25 + this._watch.height * i)
+            .attr('height', this._watch.width * 0.15)
+            .attr('width', this._watch.width * 0.15);
+
+        this._scrollStepSize.watch = (this._watch.height / 2) + 40;
 
         let loStrapCon = this._loStrap.svg.append('g')
             .attr('id', 'loStrapCon')
-            .attr('transform', 'translate(0, -110)');
+            .attr('transform', 'translate(0, -0)');
         
-        let listLo = loStrapCon.selectAll('text')
-            .data(this._apps);
-
-        listLo.enter()
-            .append('text')
+        let stepSize = this._fontSize.loStrap.normal * 4;
+        loStrapCon.append('g').selectAll('text')
+            .data(this._apps)
+            .enter().append('text')
             .attr('id', (d) => 'loBtn-' + d.id)
-            .text((d) => d.name)
-            .attr('text-anchor', 'middle')
-            .attr('x', this._loStrap.width / 2)
-            .style('font', '24px sans-serif')
-            .attr('y', (d, i) => (i + 1) * 100)
+            .text((d) => d.name.split(" ")[0])
+            .attr('text-anchor', 'left')
+            .attr('x', this._loStrap.width * .4)
+            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('y', (d, i) => (i - 1) * stepSize + this._fontSize.loStrap.normal * 2)
             .attr("fill", 'white');
+
+        loStrapCon.append('g').selectAll('text')
+            .data(this._apps)
+            .enter().append('text')
+            .attr('id', (d) => 'loBtn2-' + d.id)
+            .text((d) => d.name.split(" ")[1])
+            .attr('text-anchor', 'left')
+            .attr('x', this._loStrap.width * .4)
+            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('y', (d, i) => (i - 1) * stepSize + this._fontSize.loStrap.normal * 2 + (this._fontSize.loStrap.normal * 1.2))
+            .attr("fill", 'white');
+
+        loStrapCon.append('g').selectAll('image')
+            .data(this._apps)
+            .enter().append('image')
+            .attr("href", (d) => '/assets/' + d.name.toLowerCase().replace(" ", "-") + '/favicon.png')
+            .attr('x', this._loStrap.width * .1)
+            .attr('y', (d, i) => (i - 1) * stepSize + this._fontSize.loStrap.normal * 1.5)
+            .attr('height', this._loStrap.width * .2)
+            .attr('width', this._loStrap.width * .2);
+
+        this._loStrap.svg.append('g').selectAll('rect')
+            .data(this._apps)
+            .enter().append('rect')
+            .attr('x', 0)
+            .attr('y', (d, i) => (i) * stepSize)
+            .attr('height', stepSize)
+            .attr('width', this._loStrap.width)
+            .attr('stroke-opacity', 0)
+            .attr('fill-opacity', 0)
+            .on('mousedown', (d, i) => {
+                let index = this._curFocus + 1 + i;
+                if (index >= this._apps.length)
+                    return;
+
+                // Start app
+                let appIntent = new CustomEvent('intent', {
+                    detail: {
+                        type: 'app',
+                        app: this._apps[index]
+                    }});
+                document.dispatchEvent(appIntent);
+            });
+
+        this._scrollStepSize.loStrap = stepSize;
 
         let upStrapCon = this._upStrap.svg.append('g')
             .attr('id', 'upStrapCon')
-            .attr('transform', 'translate(0, ' + this._upStrap.height + ')' );
-        
-        let listUp = upStrapCon.selectAll('text')
-            .data(this._apps);
+            .attr('transform', 'translate(0, 0)' );
 
-        listUp.enter()
-            .append('text')
-            .attr('id', (d) => 'upBtn-' + d.id)
-            .text((d) => d.name)
-            .attr('text-anchor', 'middle')
-            .attr('x', this._upStrap.width / 2)
-            .style('font', '24px sans-serif')
-            .attr('y', (d, i) => (i + 1) * 100)
+        upStrapCon.append('g').selectAll('text')
+            .data(this._apps)
+            .enter().append('text')
+            .attr('id', (d) => 'loBtn-' + d.id)
+            .text((d) => d.name.split(" ")[0])
+            .attr('text-anchor', 'left')
+            .attr('x', this._loStrap.width * .4)
+            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
+            .attr('y', (d, i) => (i) * stepSize + this._fontSize.loStrap.normal * 2)
             .attr("fill", 'white');
+
+        upStrapCon.append('g').selectAll('text')
+            .data(this._apps)
+            .enter().append('text')
+            .attr('id', (d) => 'loBtn2-' + d.id)
+            .text((d) => d.name.split(" ")[1])
+            .attr('text-anchor', 'left')
+            .attr('x', this._loStrap.width * .4)
+            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
+            .attr('y', (d, i) => (i) * stepSize + this._fontSize.loStrap.normal * 2 + (this._fontSize.loStrap.normal * 1.2))
+            .attr("fill", 'white');
+
+        upStrapCon.append('g').selectAll('image')
+            .data(this._apps)
+            .enter().append('image')
+            .attr("href", (d) => '/assets/' + d.name.toLowerCase().replace(" ", "-") + '/favicon.png')
+            .attr('x', this._loStrap.width * .1)
+            .attr('y', (d, i) => (i) * stepSize + this._fontSize.loStrap.normal * 1.5)
+            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
+            .attr('height', this._loStrap.width * .2)
+            .attr('width', this._loStrap.width * .2);
+
+        this._upStrap.svg.append('g').selectAll('rect')
+            .data(this._apps)
+            .enter().append('rect')
+            .attr('x', 0)
+            .attr('y', (d, i) => (i) * stepSize)
+            .attr('height', stepSize)
+            .attr('width', this._loStrap.width)
+            .attr('stroke-opacity', 0)
+            .attr('fill-opacity', 0)
+            .on('mousedown', (d, i) => {
+                let index = this._curFocus - i - 1;
+                if (index >= this._apps.length)
+                    return;
+
+                // Start app
+                let appIntent = new CustomEvent('intent', {
+                    detail: {
+                        type: 'app',
+                        app: this._apps[index]
+                    }});
+                document.dispatchEvent(appIntent);
+            });
 
         this._watch.svg.on("mousedown", () => {
             let appIntent = new CustomEvent('intent', {
@@ -98,12 +218,12 @@ export default class DrawerApp extends App {
             -this._watch.height * this._curFocus);
 
         let loStrapInter = this._loStrap.d3.interpolateNumber(
-            (oldFocus * -100) - 110,
-            (this._curFocus * -100) - 110);
+            oldFocus * -this._scrollStepSize.loStrap,
+            this._curFocus * -this._scrollStepSize.loStrap);
 
         let upStrapInter = this._upStrap.d3.interpolateNumber(
-            this._upStrap.height - ((oldFocus * 100) + 80),
-            this._upStrap.height - ((this._curFocus * 100) + 80));
+            oldFocus * this._scrollStepSize.loStrap,
+            this._curFocus * this._scrollStepSize.loStrap);
         
         let t = this._watch.d3.timer((elapsed) => {
             if (elapsed > 500) {
