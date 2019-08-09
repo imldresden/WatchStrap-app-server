@@ -136,7 +136,7 @@ class Main {
             return;
 
         let xPos = (x) => { return (surface.width / 4 * x) }
-        let yPos = (y) => { return (y / 1023) * surface.height}
+        let yPos = (y) => { return (1 - (y / 1023)) * surface.height}
         let canvas = surface.document.getElementsByTagName('canvas')[0];
         let newEvent = surface.document.createEvent('MouseEvent');
 
@@ -405,6 +405,8 @@ class Main {
             return;
 
         setTimeout(() => {
+            if (!surface)
+                return;
             let canvas = surface.document.getElementsByTagName('canvas')[0];
             if (surface.imageFormat === 'bitarray') {
                 let imgData = canvas.toDataURL("image/jpeg", 1);
