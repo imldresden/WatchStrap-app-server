@@ -19,7 +19,11 @@ export default class MusicPlayer extends App{
     _curFocus;
     _curMode;
     _curState;
-    _curPlaying;
+    _curPlaying = {
+        listIndex: undefined,
+        songIndex: undefined,
+        list: undefined
+    };
     _lastPlaylistIndex = 0;
     _lastPlaylist;
     _scrollStepSizeLoStrap = 0;
@@ -88,6 +92,7 @@ export default class MusicPlayer extends App{
         this._scrollConWatch = this._watch.svg.append('g').attr('id', 'scrollConWatch');
         this._scrollConLoStrap = this._loStrap.svg.append('g').attr('id', 'scrollConLoStrap');
         this._overlayWatch = this._watch.svg.append('g').attr('id', 'overlayWatch');
+        this._overlayLoStrap = this._loStrap.svg.append('g').attr('id', 'overlayLoStrap');
 
         this._curState = MusicPlayer.states.stopped;
         this.initApp();
@@ -106,11 +111,13 @@ export default class MusicPlayer extends App{
         this._scrollConWatch.remove();
         this._scrollConLoStrap.remove();
         this._overlayWatch.remove();
+        this._overlayLoStrap.remove()
         
         this._backgroundWatch = this._watch.svg.append('g').attr('id', 'backgroundWatch');
         this._scrollConWatch = this._watch.svg.append('g').attr('id', 'scrollConWatch');
         this._scrollConLoStrap = this._loStrap.svg.append('g').attr('id', 'scrollConLoStrap');
         this._overlayWatch = this._watch.svg.append('g').attr('id', 'overlayWatch');
+        this._overlayLoStrap = this._loStrap.svg.append('g').attr('id', 'overlayLoStrap');
     }
 
     loadPlaylist(index) {
@@ -228,7 +235,7 @@ export default class MusicPlayer extends App{
             .text((d) => d.trackName)
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * 0.05)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .style('font', this._fontSize.loStrap.normal + 'px Arial')
             .attr('y', (d, i) => (i * this._fontSize.loStrap.normal * 3.5) + this._fontSize.loStrap.normal * 2)
             .attr("fill", 'white');
         this._scrollConLoStrap.append('g').selectAll('text')
@@ -237,11 +244,39 @@ export default class MusicPlayer extends App{
             .text((d) => d.artistName + " - " + d.albumName)
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * 0.05)
-            .style('font', this._fontSize.loStrap.small + 'px sans-serif')
+            .style('font', (d, i) => {
+                return i % 2 === 0 ? this._fontSize.loStrap.small + 'px Arial' : this._fontSize.loStrap.small + 'px Arial'
+            })
             .attr('y', (d, i) => (i * this._fontSize.loStrap.normal * 3.5) + this._fontSize.loStrap.small * 1.5 + this._fontSize.loStrap.normal * 2)
             .attr("fill", this._loStrap.colorMode === 'bw' ? 'white' : 'gray');
 
+        
         this._scrollStepSizeLoStrap = this._fontSize.loStrap.normal * 3.5;
+
+        let touchBoxes = Math.ceil(this._loStrap.height / this._scrollStepSizeLoStrap);
+
+        for (let i = 0; i < touchBoxes; i++) {
+        this._overlayLoStrap.append('rect')
+            .attr('x', 0)
+            .attr('y', i * this._scrollStepSizeLoStrap)
+            .attr('height', this._scrollStepSizeLoStrap)
+            .attr('width', this._loStrap.width)
+            .attr('stroke-opacity', 0)
+            .attr('fill-opacity', 0)
+            .on('mouseup', () => {
+                let index = this._curFocus + i;
+                if (index >= this._curPlaying.list.length)
+                    return;
+
+                this._curState = MusicPlayer.states.playing;
+                this._curPlaying.songIndex = index;
+                this.updateControls();
+            });
+        }
+
+        this._curPlaying.listIndex = this._lastPlaylistIndex;
+        this._curPlaying.songIndex = 0;
+        this._curPlaying.list = this._lastPlaylist;
     }
 
     loadPlaylistOverview() {
@@ -290,6 +325,25 @@ export default class MusicPlayer extends App{
             .attr("fill", 'white');
 
         this._scrollStepSizeLoStrap = 70;
+
+        let touchBoxes = Math.ceil(this._loStrap.height / this._scrollStepSizeLoStrap);
+
+        for (let i = 0; i < touchBoxes; i++) {
+            this._overlayLoStrap.append('rect')
+            .attr('x', 0)
+            .attr('y', i * this._scrollStepSizeLoStrap)
+            .attr('height', this._scrollStepSizeLoStrap)
+            .attr('width', this._loStrap.width)
+            .attr('stroke-opacity', 0)
+            .attr('fill-opacity', 0)
+            .on('mouseup', () => {
+                let index = this._curFocus + i + 1;
+                if (index >= this._playlists.length)
+                    return;
+
+                this.loadPlaylist(index);
+            });
+        }
     }
 
     static formatDuration(ms) {
@@ -321,7 +375,6 @@ export default class MusicPlayer extends App{
             .attr('height', controlSizeLg)
             .attr('width', controlSizeLg)
             .on('mousedown', () => {
-                console.log('down');
                 if (this._curState === MusicPlayer.states.playing) {
                     this.pause();
                 } else {
@@ -362,7 +415,7 @@ export default class MusicPlayer extends App{
             .attr('x2', this._upStrap.width - this._upStrap.width * 0.1)
             .attr('y2', this._upStrap.height * 0.05)
             .attr('stroke', this._upStrap.colorMode === 'bw' ? 'white' : 'deepskyblue')
-            .attr('stroke-width', this._upStrap.colorMode === 'bw' ? 3 : 2);
+            .attr('stroke-width', this._upStrap.colorMode === 'bw' ? 4 : 2);
 
         this._upCon.append('circle')
             .attr('id', 'progress-circle')
@@ -380,6 +433,36 @@ export default class MusicPlayer extends App{
             .attr('y', -this._upStrap.height * .3)
             .attr("fill", 'white');
 
+        this._upCon.append('rect')
+            .attr('x', this._upStrap.width * 0.66)
+            .attr('y', this._upStrap.height * .22 - controlSizeMd * 1.5)
+            .attr('height', controlSizeMd * 2)
+            .attr('width', this._upStrap.width / 3)
+            .attr('fill-opacity', 0)
+            .on('mousedown', () => this.prev());
+
+        this._upCon.append('rect')
+            .attr('x', this._upStrap.width * 0.33)
+            .attr('y', this._upStrap.height * .22 - controlSizeLg * 1.5)
+            .attr('height', controlSizeLg * 2)
+            .attr('width', this._upStrap.width / 3)
+            .attr('fill-opacity', 0)
+            .on('mousedown', () => {
+                    if (this._curState === MusicPlayer.states.playing) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            });
+
+            this._upCon.append('rect')
+            .attr('x', 0)
+            .attr('y', this._upStrap.height * .22 - controlSizeMd * 1.5)
+            .attr('height', controlSizeMd * 2)
+            .attr('width', this._upStrap.width / 3)
+            .attr('fill-opacity', 0)
+            .on('mousedown', () => this.next());
+
         this.updateControls();
     }
 
@@ -387,7 +470,7 @@ export default class MusicPlayer extends App{
         let upCon = this._upCon;
         switch (this._curState) {
             case MusicPlayer.states.playing:
-                let song = this._curPlaying[2][this._curPlaying[1]];
+                let song = this._curPlaying.list[this._curPlaying.songIndex];
                 this._upCon.select('text')
                     .text(song.trackName + " - " + song.artistName)
                     .attr("fill", this._upStrap.colorMode === 'bw' ? 'white' : "deepskyblue");
@@ -403,16 +486,17 @@ export default class MusicPlayer extends App{
                     .attr("fill", "white");
                 break;
             case MusicPlayer.states.stopped:
-                    switch (this._curMode) {
-                        case MusicPlayer.modes.allPlaylists:
-                            this._upCon.select('text').text("Play: " + this._playlists[this._curFocus].name);
-                            break;
-                        case MusicPlayer.modes.playlistView:
-                            this._upCon.select('text').text("Play: " + this._playlists[this._lastPlaylistIndex].name);
-                            break;
-                        case MusicPlayer.modes.playQueue:
-                            break;
-                    }
+                    this._upCon.select('text').text('No song selected...');
+                    // switch (this._curMode) {
+                    //     case MusicPlayer.modes.allPlaylists:
+                    //         this._upCon.select('text').text("Play: " + this._playlists[this._curFocus].name);
+                    //         break;
+                    //     case MusicPlayer.modes.playlistView:
+                    //         this._upCon.select('text').text("Play: " + this._playlists[this._lastPlaylistIndex].name);
+                    //         break;
+                    //     case MusicPlayer.modes.playQueue:
+                    //         break;
+                    // }
                 break;
         }
     }
@@ -425,7 +509,7 @@ export default class MusicPlayer extends App{
         }
         let timePassed = new Date() - startTime;
         this._timePassed = timePassed;
-        let song = this._curPlaying[2][this._curPlaying[1]];
+        let song = this._curPlaying.list[this._curPlaying.songIndex];
         let length = song.trackDuration;
         let x = (this._upStrap.width - this._upStrap.width * 0.1) - (this._upStrap.width - (this._upStrap.width * 0.1 * 2)) * (timePassed / length);
 
@@ -447,17 +531,19 @@ export default class MusicPlayer extends App{
     highlightPlayingSong() {
         switch (this._curMode) {
             case MusicPlayer.modes.playlistView:
-                if (this._lastPlaylistIndex === this._curPlaying[0]) {
+                if (this._lastPlaylistIndex === this._curPlaying.listIndex) {
                     this._scrollConLoStrap.select('#strap-tracknames').selectAll('text')
-                        .attr("fill", "white");
+                        .attr("fill", "white")
+                        .style('font', this._fontSize.loStrap.normal + 'px Arial');
                     this._scrollConLoStrap.select('#strap-tracknames').selectAll('text')
-                        .filter((d, i) => i === this._curPlaying[1])
-                        .attr("fill", this._loStrap.colorMode === 'bw' ? 'white' : "deepskyblue");
+                        .filter((d, i) => i === this._curPlaying.songIndex)
+                        .attr("fill", this._loStrap.colorMode === 'bw' ? 'white' : "deepskyblue")
+                        .style('font', this._fontSize.loStrap.normal + 'px Arial Black');
 
                     this._scrollConWatch.select('#watch-tracknames').selectAll('text')
                         .attr("fill", "white");
                     this._scrollConWatch.select('#watch-tracknames').selectAll('text')
-                        .filter((d, i) => i === this._curPlaying[1])
+                        .filter((d, i) => i === this._curPlaying.songIndex)
                         .attr("fill", "deepskyblue");
 
                 }
@@ -481,22 +567,37 @@ export default class MusicPlayer extends App{
     next() {
         if (this._curState === MusicPlayer.states.stopped) {
             // check playlist in focus, play first song
+            this._curState = MusicPlayer.states.playing;
+            this._curPlaying.songIndex = this._curPlaying.songIndex + 1;
+            this.updateControls();
         } else {
             if (this._curTimer) {
                 clearTimeout(this._curTimer);
                 this._curTimer = undefined;
             }
-            this._curPlaying[1] = this._curPlaying[1] + 1;
+            if (this._curPlaying.songIndex < this._curPlaying.list.length)
+                this._curPlaying.songIndex = this._curPlaying.songIndex + 1;
             this.updateControls();
         }
     }
 
     prev() {
-
+        if (this._curState === MusicPlayer.states.stopped) {
+            // check playlist in focus, play first song
+            this._curState = MusicPlayer.states.playing;
+            this.updateControls();
+        } else if (this._curState === MusicPlayer.states.playing) {
+            if (this._curTimer) {
+                clearTimeout(this._curTimer);
+                this._curTimer = undefined;
+            }
+            if (this._curPlaying.songIndex > 0)
+                this._curPlaying.songIndex = this._curPlaying.songIndex - 1;
+            this.updateControls();
+        }
     }
 
     onWatchTouch() {
-        console.log(this._watch.d3.event);
         if (this._curMode === MusicPlayer.modes.allPlaylists) {
             this.loadPlaylist(this._curFocus);
         } else if (this._curMode === MusicPlayer.modes.playlistView) {
@@ -505,7 +606,9 @@ export default class MusicPlayer extends App{
                 this._curTimer = undefined;
             }
             let curSong = this._curFocus === 0 ? 0 : this._curFocus - 1;
-            this._curPlaying = [this._lastPlaylistIndex, curSong, this._lastPlaylist];
+            this._curPlaying.listIndex = this._lastPlaylistIndex;
+            this._curPlaying.songIndex = curSong;
+            this._curPlaying.list = this._lastPlaylist;
             this._curState = MusicPlayer.states.playing;
             this.updateControls();
         }
