@@ -229,18 +229,24 @@ export default class DrawerApp extends App {
             if (elapsed > 500) {
                 t.stop();
                 this._watch.svg.select('#watchCon').attr('transform', 'translate(0, ' + watchInter(1) + ')');
-                this._loStrap.svg.select('#loStrapCon').attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
-                this._upStrap.svg.select('#upStrapCon').attr('transform', 'translate(0, ' + upStrapInter(1) + ')');
+                if (this._loStrap.type !== 'eink')
+                    this._loStrap.svg.select('#loStrapCon').attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
+                if (this._upStrap.type !== 'eink')
+                    this._upStrap.svg.select('#upStrapCon').attr('transform', 'translate(0, ' + upStrapInter(1) + ')');
                 return;
             }
             this._watch.svg.select('#watchCon')
                 .attr('transform', 'translate(0, ' + watchInter(elapsed / 500) + ')');
-            this._loStrap.svg.select('#loStrapCon')
-                .attr('transform', 'translate(0, ' + loStrapInter(elapsed / 500) + ')');
-            this._upStrap.svg.select('#upStrapCon')
-                .attr('transform', 'translate(0, ' + upStrapInter(elapsed / 500) + ')');
-            
+            if (this._loStrap.type !== 'eink')
+                this._loStrap.svg.select('#loStrapCon').attr('transform', 'translate(0, ' + loStrapInter(elapsed / 500) + ')');
+            if (this._upStrap.type !== 'eink')
+                this._upStrap.svg.select('#upStrapCon').attr('transform', 'translate(0, ' + upStrapInter(elapsed / 500) + ')');
         })
+
+        if (this._upStrap.type === 'eink')
+            this._loStrap.svg.select('#loStrapCon').attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
+        if (this._upStrap.type === 'eink')
+            this._upStrap.svg.select('#upStrapCon').attr('transform', 'translate(0, ' + upStrapInter(1) + ')');
     }
 }
 

@@ -27,7 +27,7 @@ const displayConfigs = {
         width: 104,
         height: 212,
         dpi: 105,
-        updateInterval: 1000,
+        updateInterval: 800,
         type: 'eink',
         imageFormat: 'bitarray',
         color: 'bw'
@@ -430,7 +430,7 @@ class Main {
                 this._socket.emit('msg', msg);
             }
             this._surfacesLastUpdate[surId] = Date.now();
-        }, 10);
+        }, 20);
     }
 }
 new Main();
