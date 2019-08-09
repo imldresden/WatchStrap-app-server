@@ -8,7 +8,8 @@ export default class Surface {
 
     converting = {
         dithering: false,
-        invert: true
+        invert: true,
+        pendingFullRefresh: false
     };
 
     get id() { return this._id; }
@@ -38,6 +39,10 @@ export default class Surface {
         this.document.open();
         this.document.write(skeleton);
         this.document.close();
+
+        if (this.type === 'eink') {
+            this.converting.pendingFullRefresh = true;
+        }
 
         this.window.onload = () => this._onLoadedCallback(id, this)
     }

@@ -115,6 +115,7 @@ io.on('connection', client => {
                         let msg3 = {
                             target: msg.target,
                             type: msg.type,
+                            refresh: msg.refresh,
                             part: 2,
                             payload: dataAsInt.slice(Math.floor(byteArray.length * (2/3)), dataAsInt.length)
                         };

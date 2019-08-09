@@ -417,10 +417,12 @@ class Main {
                         width: surface.width,
                         height: surface.height
                     },
+                    refresh: surface.converting.pendingFullRefresh ? 'full' : 'part',
                     dithering: surface.converting.dithering,
                     invert: surface.converting.invert,
                     payload: imgData
                 };
+                surface.converting.pendingFullRefresh = false;
                 this._socket.emit('convert', msg);
             } else if (surface.imageFormat === 'jpeg') {
                 let imgData = canvas.toDataURL("image/jpeg", 0.6);
