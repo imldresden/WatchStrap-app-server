@@ -18,13 +18,13 @@
     "canvas-dither": "^1.0.0",
     "express": "^4.17.1",
     "forever": "^1.0.0",
-    "image_to_epaper_converter": "^1.0.0",
+    "image_to_epaper_converter": "https://github.com/tomhorak21/ImageToEpaperConverter/tarball/master",
     "imagejs": "0.0.9",
     "ip": "^1.1.5",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
-    "socket.io-client": "latest",
-    "mocha": "^6.1.4"
+    "mocha": "^6.2.0",
+    "socket.io-client": "latest"
   }
 }
