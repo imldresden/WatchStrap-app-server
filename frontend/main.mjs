@@ -322,6 +322,8 @@ class Main {
         switch (msg.type) {
             case 'connect':
                 console.debug('device connected:', msg.identifier);
+                if (this._surfaces[msg.identifier] && this._surfaces[msg.identifier].imageFormat === 'bitarray')
+                    this._surfaces[msg.identifier].converting.pendingFullRefresh = true;
                 this.onSurfaceUpdate(msg.identifier);
                 break;
             case 'disconnect':
