@@ -429,7 +429,7 @@ class Main {
             };
             surface.converting.pendingFullRefresh = false;
             this._socket.emit('convert', msgClear);
-            setTimeout(() => this._socket.emit('convert', msg), 1000);
+            setTimeout(() => this._socket.emit('convert', msg), 2000);
         }
     }
 
