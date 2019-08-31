@@ -12,6 +12,10 @@ export default class Surface {
         pendingFullRefresh: false
     };
 
+    _fontSize;
+    _defaultFontFamily = 'Arial';
+    _defaultFontFamilyBold = 'Arial Black';
+
     get id() { return this._id; }
     get width() { return this._displayConfig.width; }
     get height() { return this._displayConfig.height; }
@@ -44,8 +48,53 @@ export default class Surface {
             this.converting.pendingFullRefresh = true;
         }
 
+        this._fontSize = {
+            "LOWER_STRAP": {
+                'small': this.dpi < 150 ? 11 : 16,
+                'normal': this.dpi < 150 ? 15 : 22,
+                'large': this.dpi < 150 ? 20 : 28
+            },
+            "UPPER_STRAP": {
+                'small': this.dpi < 150 ? 11 : 16,
+                'normal': this.dpi < 150 ? 15 : 22,
+                'large': this.dpi < 150 ? 20 : 28
+            },
+            "WATCH": {
+                'tiny': 14,
+                'small': 18,
+                'normal': 24,
+                'large': 30
+            }
+        }
+
         this.window.onload = () => this._onLoadedCallback(id, this)
     }
+
+    font(size, family) {
+        let fontString;
+        if (size) {
+            if (typeof size === 'number') {
+                fontString = size;
+            } else {
+                fontString = this._fontSize[this.id][size] ? this._fontSize[this.id][size] : this._fontSize[this.id]['normal'];
+            }
+        } else {
+            fontString = this._fontSize[this.id]['normal'];
+        }
+        fontString = fontString + "px";
+
+        if (family) {
+            if (family === "bold")
+                fontString = fontString + " " + this._defaultFontFamilyBold;
+            else
+                fontString = fontString + " " + family;
+        } else
+            fontString = fontString + " " + this._defaultFontFamily;
+
+        return fontString;
+    }
+
+    fontSize(size) { return this._fontSize[this.id][size]}
 
     generateIFrame() {
         let iframe = document.createElement('iframe');
