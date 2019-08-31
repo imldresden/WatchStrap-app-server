@@ -63,7 +63,8 @@ io.on('connection', client => {
             // Create canvas to generate a bitmap
             let canvas = createCanvas(msg.size.width, msg.size.height)
             let ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            if (!msg.clear)
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             // Apply dithering if requested
             if (msg.dithering) {
                 let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);

@@ -231,6 +231,10 @@ class Main {
             () => this.dispatchBezelEvent({direction: "CCW", type: "bezelrotate"}));
         document.getElementById('debug-hwkey-back').addEventListener('click',
             () => this.dispatchHwkeyEvent({key: "back", type: "hwkey"}));
+        document.getElementById('debug-clear-lostrap').addEventListener('click',
+            () => this.onClearEinkSurface(idLowerStrap));
+        document.getElementById('debug-clear-upstrap').addEventListener('click',
+            () => this.onClearEinkSurface(idUpperStrap));
 
         // Check for noSsvg URL flag; update indicator
         let noSsvg = (new URL(window.location.href)).searchParams.get("noSsvg");
@@ -387,6 +391,45 @@ class Main {
                     this._surfaces[idUpperStrap]
                 );
             }
+        }
+    }
+
+    onClearEinkSurface(surId) {
+        if (surId !== idLowerStrap && surId !== idUpperStrap) return;
+
+        let surface = this._surfaces[surId];
+        if (surface.imageFormat === 'bitarray') {
+            let canvas = surface.document.getElementsByTagName('canvas')[0];
+            let imgData = canvas.toDataURL("image/jpeg", 1);
+            let msgClear = {
+                target: surId,
+                type: 'imageData',
+                size: {
+                    width: surface.width,
+                    height: surface.height
+                },
+                refresh: 'full',
+                clear: true,
+                dithering: surface.converting.dithering,
+                invert: surface.converting.invert,
+                payload: imgData
+            };
+
+            let msg = {
+                target: surId,
+                type: 'imageData',
+                size: {
+                    width: surface.width,
+                    height: surface.height
+                },
+                refresh: 'full',
+                dithering: surface.converting.dithering,
+                invert: surface.converting.invert,
+                payload: imgData
+            };
+            surface.converting.pendingFullRefresh = false;
+            this._socket.emit('convert', msgClear);
+            setTimeout(() => this._socket.emit('convert', msg), 1000);
         }
     }
 
