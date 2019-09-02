@@ -365,6 +365,7 @@ class Main {
         if (selectedSetup !== this._curSetup) {
             this._curSetup = selectedSetup;
             this.loadApp(this._nextApp);
+            localStorage.setItem('debug-setup', selectedSetup);
         }
     }
 
