@@ -244,7 +244,8 @@ class Main {
             debugElem.classList = "off";
         }
 
-        this.loadApp(Drawer);
+        // this.loadApp(Drawer);
+        this.loadApp(ActivityTracker);
     }
 
     loadApp(app) {

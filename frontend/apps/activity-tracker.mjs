@@ -131,10 +131,10 @@ export default class ActivityTracker extends App{
             .attr('x', this._upStrap.width * 0.05)
             .attr('y', -this._upStrap.height * 0.025)
             .attr('width', this._upStrap.width * 0.9)
-            .attr('height', -this._upStrap.fontSize('normal') * 3)
+            .attr('height', this._upStrap.colorMode === 'bw' ? -this._upStrap.fontSize('normal') * 3 : -this._upStrap.fontSize('normal') * 4.5)
             .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
-            .attr('fill', 'rgb(255,255,255')
-            .style('fill-opacity', 0.5);
+            .attr('fill', this._upStrap.colorMode === 'bw' ? 'rgb(255,255,255)' : 'none')
+            .attr('stroke', this._upStrap.colorMode === 'bw' ? 'none' : 'deepskyblue');
 
         this._staticConUpStrap.append('text')
             .text("Start")
@@ -143,7 +143,7 @@ export default class ActivityTracker extends App{
             .style('font', this._upStrap.font('normal', 'bold'))
             .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
             .attr('y', -this._upStrap.height * .075 - this._upStrap.fontSize('normal') * 1.2)
-            .attr("fill", 'black');
+            .attr("fill", this._upStrap.colorMode === 'bw' ? 'black' : 'white');
 
         this._staticConUpStrap.append('text')
             .text("New Activity")
@@ -152,7 +152,7 @@ export default class ActivityTracker extends App{
             .style('font', this._upStrap.font('small', 'bold'))
             .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
             .attr('y', -this._upStrap.height * .075)
-            .attr("fill", 'black');
+            .attr("fill", this._upStrap.colorMode === 'bw' ? 'black' : 'white');
 
         this._staticConUpStrap.append('rect')
             .attr('x', 0)
@@ -273,6 +273,7 @@ export default class ActivityTracker extends App{
 
     initRunStats(runMeta, runData) {
         this.cleanInterface();
+        this._curRun = runMeta;
         this._curMode = ActivityTracker.modes.runStats;
 
         let x = this._watch.d3.scaleLinear()
@@ -296,10 +297,6 @@ export default class ActivityTracker extends App{
             x.domain([minX  - (diffY - diffX) / 2, maxX + (diffY - diffX) / 2]);
             y.domain([minY, maxY]);
         }
-
-        console.log(minX, maxX, minY, maxY, diffX, diffY);
-        console.log(x.domain(), y.domain());
-        console.log(maxX, (diffY - diffX) / 2, maxX + (diffY - diffX) / 2)
 
         let line = this._watch.d3.line()
             .x((d) => x(d.lat))
@@ -381,6 +378,335 @@ export default class ActivityTracker extends App{
             .attr('y', 280)
             .style('font', this._watch.font('small'))
             .attr('fill', 'white');
+
+        let xStats = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.width * 0.05, this._loStrap.width * 0.95]);
+        xStats.domain([this._loStrap.d3.min(runData, (d) => (new Date(d.time)).getTime()), this._loStrap.d3.max(runData, (d) => (new Date(d.time)).getTime())]);
+        
+        let yPace = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.fontSize('normal') * 3, this._loStrap.fontSize('normal') * 2]);
+        yPace.domain([this._loStrap.d3.min(runData, (d) => d.speed), this._loStrap.d3.max(runData, (d) => d.speed)]);
+
+        let linePace = this._loStrap.d3.line()
+            .x((d) => xStats((new Date(d.time)).getTime()))
+            .y((d) => yPace(d.speed))
+            .curve(this._loStrap.d3.curveLinear);
+
+        this._staticConLoStrap.append('path')
+            .datum(runData)
+            .attr('d', linePace)
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'deepskyblue')
+            .attr('stroke-width', 1);
+
+        this._staticConLoStrap.append('text')
+            .text(runMeta.avgPace)
+            .attr('x', this._loStrap.width * 0.95)
+            .attr('y', this._loStrap.fontSize('normal') * 1.5)
+            .style('font', this._loStrap.font('normal'))
+            .attr('text-anchor', 'right')
+            .attr('fill', this._loStrap.colorMode === 'bw' ? 'white' : 'deepskyblue');
+        this._staticConLoStrap.append('text')
+            .text("Pace")
+            .attr('x', this._loStrap.width * 0.05)
+            .attr('y', this._loStrap.fontSize('normal') * 1.5)
+            .style('font', this._loStrap.font('small'))
+            .attr('text-anchor', 'left')
+            .attr('fill', 'white');
+
+        let yHR = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.fontSize('normal') * 6.5, this._loStrap.fontSize('normal') * 5.5]);
+        yHR.domain([this._loStrap.d3.min(runData, (d) => Number.parseInt(d.hr)), this._loStrap.d3.max(runData, (d) => Number.parseInt(d.hr))]);
+
+        let lineHR = this._loStrap.d3.line()
+            .x((d) => xStats((new Date(d.time)).getTime()))
+            .y((d) => yHR(d.hr))
+            .curve(this._loStrap.d3.curveLinear);
+
+        this._staticConLoStrap.append('path')
+            .datum(runData)
+            .attr('d', lineHR)
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'indianred')
+            .attr('stroke-width', 1);
+
+        this._staticConLoStrap.append('text')
+            .text(runMeta.avgHR)
+            .attr('x', this._loStrap.width * 0.95)
+            .attr('y', this._loStrap.fontSize('normal') * 5)
+            .style('font', this._loStrap.font('normal'))
+            .attr('text-anchor', 'right')
+            .attr('fill', this._loStrap.colorMode === 'bw' ? 'white' : 'indianred');
+        this._staticConLoStrap.append('text')
+            .text("Heart Rate")
+            .attr('x', this._loStrap.width * 0.05)
+            .attr('y', this._loStrap.fontSize('normal') * 5)
+            .style('font', this._loStrap.font('small'))            
+            .attr('text-anchor', 'left')
+            .attr('fill', 'white');
+
+        let yElev = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.fontSize('normal') * 10, this._loStrap.fontSize('normal') * 9]);
+        yElev.domain([this._loStrap.d3.min(runData, (d) => Number.parseFloat(d.alt)) - 30, this._loStrap.d3.max(runData, (d) => Number.parseFloat(d.alt)) + 30]);
+
+        let lineElev = this._loStrap.d3.line()
+            .x((d) => xStats((new Date(d.time)).getTime()))
+            .y((d) => yElev(d.alt))
+            .curve(this._loStrap.d3.curveLinear);
+
+        this._staticConLoStrap.append('path')
+            .datum(runData)
+            .attr('d', lineElev)
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'limegreen')
+            .attr('stroke-width', 1);
+
+        this._staticConLoStrap.append('text')
+            .text(runMeta.elevGain)
+            .attr('x', this._loStrap.width * 0.95)
+            .attr('y', this._loStrap.fontSize('normal') * 8.5)
+            .style('font', this._loStrap.font('normal'))
+            .attr('text-anchor', 'right')
+            .attr('fill', this._loStrap.colorMode === 'bw' ? 'white' : 'limegreen');
+        this._staticConLoStrap.append('text')
+            .text("Elev. Gain")
+            .attr('x', this._loStrap.width * 0.05)
+            .attr('y', this._loStrap.fontSize('normal') * 8.5)
+            .style('font', this._loStrap.font('small'))
+            .attr('text-anchor', 'left')
+            .attr('fill', 'white');
+
+        this._staticConLoStrap.append('rect')
+            .attr('x', this._loStrap.width * 0.05)
+            .attr('y', this._loStrap.colorMode === 'bw' ? this._loStrap.fontSize('normal') * 10.7 : this._loStrap.fontSize('normal') * 12)
+            .attr('width', this._loStrap.width * 0.9)
+            .attr('height', this._loStrap.fontSize('normal') * 2.25)
+            .attr('fill', this._loStrap.colorMode === 'bw' ? 'white' : 'none')
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'none' : 'deepskyblue');
+            
+        this._staticConLoStrap.append('text')
+            .text("Show Details")
+            .attr('text-anchor', 'middle')
+            .attr('x', this._loStrap.width / 2)
+            .style('font', this._loStrap.font('small', 'bold'))
+            .attr('y', this._loStrap.colorMode === 'bw' ? this._loStrap.fontSize('normal') * 12 : this._loStrap.fontSize('normal') * 13.3)
+            .attr("fill", this._loStrap.colorMode === 'bw' ? 'black' : 'white');
+
+        this._staticConLoStrap.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this._loStrap.width)
+            .attr('height', this._loStrap.height)
+            .attr('fill-opacity', 0)
+            .on('mousedown', () => {
+                this.initRunDetails(runMeta, runData);
+            });
+    }
+
+    loadRunDetails(run) {
+        this._watch.d3.csv(this._url + run.id + '.csv')
+            .then((d) => { this.initRunDetails(run, d); });
+    }
+
+    initRunDetails(runMeta, runData) {
+        this._curMode = ActivityTracker.modes.runDetails;
+        this.cleanInterface();
+
+        let y = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.height * 0.05, this._loStrap.height * 0.95]);
+        y.domain([this._loStrap.d3.min(runData, (d) => (new Date(d.time)).getTime()), this._loStrap.d3.max(runData, (d) => (new Date(d.time)).getTime())]);
+        
+        let xPace = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.width * 0.05, this._loStrap.width * 0.95]);
+        xPace.domain([this._loStrap.d3.min(runData, (d) => d.speed), this._loStrap.d3.max(runData, (d) => d.speed)]);
+
+        let linePace = this._loStrap.d3.line()
+            .x((d) => xPace(d.speed))
+            .y((d) => y((new Date(d.time)).getTime()))
+            .curve(this._loStrap.d3.curveLinear);
+
+        this._staticConLoStrap.append('path')
+            .datum(runData)
+            .attr('d', linePace)
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'deepskyblue')
+            .attr('stroke-width', 2);
+
+        let xHR = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.width * 0.05, this._loStrap.width * 0.95]);
+        xHR.domain([this._loStrap.d3.min(runData, (d) => Number.parseInt(d.hr)), this._loStrap.d3.max(runData, (d) => Number.parseInt(d.hr))]);
+
+        let lineHR = this._loStrap.d3.line()
+            .x((d) => xHR(d.hr))
+            .y((d) => y((new Date(d.time)).getTime()))
+            .curve(this._loStrap.d3.curveLinear);
+
+        this._staticConLoStrap.append('path')
+            .datum(runData)
+            .attr('d', lineHR)
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'indianred')
+            .attr('stroke-width', this._loStrap.colorMode === 'bw' ? 0.5 : 1);
+
+        let xElev = this._loStrap.d3.scaleLinear()
+            .rangeRound([this._loStrap.width * 0.05, this._loStrap.width * 0.95]);
+            xElev.domain([this._loStrap.d3.min(runData, (d) => Number.parseFloat(d.alt)) - 30, this._loStrap.d3.max(runData, (d) => Number.parseFloat(d.alt)) + 30]);
+
+        let lineElev = this._loStrap.d3.line()
+            .x((d) => xElev(d.alt))
+            .y((d) => y((new Date(d.time)).getTime()))
+            .curve(this._loStrap.d3.curveLinear);
+
+        this._staticConLoStrap.append('path')
+            .datum(runData)
+            .attr('d', lineElev)
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'limegreen')
+            .attr('stroke-width', this._loStrap.colorMode === 'bw' ? 0.5 : 1);
+
+        let strapLine = this._staticConLoStrap.append('line')
+            .attr('x1', 0)
+            .attr('y1', y((new Date(runData[150].time)).getTime()))
+            .attr('x2', this._loStrap.width)
+            .attr('y2', y((new Date(runData[150].time)).getTime()))
+            .attr('stroke', 'white')
+            .attr('stroke-width', 1);
+
+        let totalLength = (this._watch.d3.max(runData, (d) => (new Date(d.time)).getTime()) - this._watch.d3.min(runData, (d) => (new Date(d.time)).getTime())) / 1000;
+        let x = this._watch.d3.scaleLinear()
+            .rangeRound([0, totalLength]);
+        x.domain([this._watch.d3.min(runData, (d) => (new Date(d.time)).getTime()), this._watch.d3.max(runData, (d) => (new Date(d.time)).getTime())]);
+        
+        let yPace = this._watch.d3.scaleLinear()
+            .rangeRound([this._watch.height * 0.66, this._watch.height * 0.33]);
+        yPace.domain([this._watch.d3.min(runData, (d) => d.speed), this._watch.d3.max(runData, (d) => d.speed)]);
+
+        let linePaceWatch = this._watch.d3.line()
+            .x((d) => x((new Date(d.time)).getTime()))
+            .y((d) => yPace(d.speed))
+            .curve(this._watch.d3.curveMonotoneX);
+
+        this._scrollConWatch.append('path')
+            .datum(runData)
+            .attr('d', linePaceWatch)
+            .attr('stroke', 'deepskyblue')
+            .attr('stroke-width', 6);
+
+        let yHR = this._watch.d3.scaleLinear()
+            .rangeRound([this._watch.height * 0.66, this._watch.height * 0.33]);
+        yHR.domain([this._watch.d3.min(runData, (d) => Number.parseInt(d.hr)), this._watch.d3.max(runData, (d) => Number.parseInt(d.hr))]);
+
+        let lineHRWatch = this._watch.d3.line()
+            .x((d) => x((new Date(d.time)).getTime()))
+            .y((d) => yHR(d.hr))
+            .curve(this._watch.d3.curveMonotoneX);
+
+        this._scrollConWatch.append('path')
+            .datum(runData)
+            .attr('d', lineHRWatch)
+            .attr('stroke', 'indianred')
+            .attr('stroke-width', 3);
+
+        let yElev = this._watch.d3.scaleLinear()
+            .rangeRound([this._watch.height * 0.66, this._watch.height * 0.33]);
+        yElev.domain([this._watch.d3.min(runData, (d) => Number.parseFloat(d.alt)) - 15, this._watch.d3.max(runData, (d) => Number.parseFloat(d.alt)) + 15]);
+
+        let lineElevWatch = this._watch.d3.line()
+            .x((d) => x((new Date(d.time)).getTime()))
+            .y((d) => yElev(d.alt))
+            .curve(this._watch.d3.curveMonotoneX);
+
+        this._scrollConWatch.append('path')
+            .datum(runData)
+            .attr('d', lineElevWatch)
+            .attr('stroke', 'limegreen')
+            .attr('stroke-width', 3);
+
+        this._staticConWatch.append('text')
+            .text('Pace')
+            .attr('text-anchor', 'middle')
+            .attr('x', this._watch.width / 2)
+            .attr('y', 40)
+            .style('font', this._watch.font('normal'))
+            .attr('fill', 'white');
+
+        let pace = this._staticConWatch.append('text')
+            .text(this.formatPace(runData[0].speed))
+            .attr('text-anchor', 'middle')
+            .attr('x', this._watch.width / 2)
+            .attr('y', 80)
+            .style('font', this._watch.font('large'))
+            .attr('fill', 'deepskyblue');
+
+        this._staticConWatch.append('text')
+            .text('Heart Rate')
+            .attr('text-anchor', 'right')
+            .attr('x', this._watch.width * .45)
+            .attr('y', this._watch.height - 80)
+            .style('font', this._watch.font('normal'))
+            .attr('fill', 'white');
+
+        let hr = this._staticConWatch.append('text')
+            .text(runData[0].hr)
+            .attr('text-anchor', 'right')
+            .attr('x', this._watch.width * .45)
+            .attr('y', this._watch.height - 40)
+            .style('font', this._watch.font('large'))
+            .attr('fill', 'indianred');
+
+        this._staticConWatch.append('text')
+            .text('Elevation')
+            .attr('text-anchor', 'left')
+            .attr('x', this._watch.width * .55)
+            .attr('y', this._watch.height - 80)
+            .style('font', this._watch.font('normal'))
+            .attr('fill', 'white');
+
+        let elev = this._staticConWatch.append('text')
+            .attr('text-anchor', 'left')
+            .attr('x', this._watch.width * .55)
+            .attr('y', this._watch.height - 40)
+            .style('font', this._watch.font('large'))
+            .attr('fill', 'limegreen');
+
+
+        this._detailScroll = (index) => {
+            console.log("scroll", index);
+            if (index < 0 || index >= runData.length)
+                return;
+            this._curFocus = index;
+
+            this._scrollConWatch
+                .attr('transform', 'translate(' + ((this._watch.width / 2) - x((new Date(runData[index].time)).getTime())) + ', 0)');   
+            strapLine
+                .attr('y1', y((new Date(runData[index].time)).getTime()))
+                .attr('y2', y((new Date(runData[index].time)).getTime()));
+
+            pace.text(this.formatPace(runData[index].speed));
+            hr.text(runData[index].hr);
+            elev.text(Number.parseFloat(runData[index].alt).toFixed(2));
+
+        }
+
+        this._detailScroll(0);
+
+        this._staticConWatch.append('line')
+            .attr('x1', this._watch.width / 2)
+            .attr('y1', this._watch.height * 0.3)
+            .attr('x2', this._watch.width / 2)
+            .attr('y2', this._watch.height * 0.7)
+            .attr('stroke', 'white')
+            .attr('stroke-width', 1);
+
+        this._staticConLoStrap.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this._loStrap.width)
+            .attr('height', this._loStrap.height)
+            .attr('fill-opacity', 0)
+            .on('mousedown', () => mapTouchOnStrap())
+            .on('mousemove', () => mapTouchOnStrap());
+        let mapTouchOnStrap = () => {
+            let eY = this._loStrap.d3.event.y;
+            if (eY < y.domain[0] || eY > y.domain[1]) return;
+
+            let index = runData.indexOf(runData.find((d, i) => (new Date(d.time)).getTime() >= y.invert(eY)));
+            this._detailScroll(index);
+        }
     }
 
     loadTracking() {
@@ -506,30 +832,39 @@ export default class ActivityTracker extends App{
 
     onBezelRotate(e) {
         let oldFocus = this._curFocus;
-        if (e.direction === "CW" && this._curFocus < this._runs.length) {
-            this._curFocus += 1;
-        } else if (e.direction === "CCW" && this._curFocus >= 1) {
-            this._curFocus -= 1;
-        }
 
-        let loStrapInter = this._loStrap.d3.interpolateNumber(
-            ((oldFocus) * -this._scrollStepSizeLoStrap),
-            ((this._curFocus) * -this._scrollStepSizeLoStrap));
-
-        let t = this._watch.d3.timer((elapsed) => {
-            if (elapsed > 500) {
-                t.stop();
-                if (this._loStrap.type !== 'eink')
-                    this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
-                return;
+        if (this._curMode === ActivityTracker.modes.runDetails) {
+            if (e.direction === "CW") {
+                this._detailScroll(this._curFocus + 2);
+            } else if (e.direction === "CCW") {
+                this._detailScroll(this._curFocus - 2);
             }
-            if (this._loStrap.type !== 'eink')
-                this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(elapsed / 500) + ')');
-            
-        });
+        } else if (this._curMode === ActivityTracker.modes.overview) {
+            if (e.direction === "CW" && this._curFocus < this._runs.length) {
+                this._curFocus += 1;
+            } else if (e.direction === "CCW" && this._curFocus >= 1) {
+                this._curFocus -= 1;
+            }
 
-        if (this._loStrap.type === 'eink')
-            this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
+            let loStrapInter = this._loStrap.d3.interpolateNumber(
+                ((oldFocus) * -this._scrollStepSizeLoStrap),
+                ((this._curFocus) * -this._scrollStepSizeLoStrap));
+
+            let t = this._watch.d3.timer((elapsed) => {
+                if (elapsed > 500) {
+                    t.stop();
+                    if (this._loStrap.type !== 'eink')
+                        this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
+                    return;
+                }
+                if (this._loStrap.type !== 'eink')
+                    this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(elapsed / 500) + ')');
+                
+            });
+
+            if (this._loStrap.type === 'eink')
+                this._scrollConLoStrap.attr('transform', 'translate(0, ' + loStrapInter(1) + ')');
+        }
     }
 
     onHwkey(e) {
@@ -543,7 +878,7 @@ export default class ActivityTracker extends App{
                 let intent = new CustomEvent('intent', {detail: {type: 'close'}});
                 document.dispatchEvent(intent);
             } else if (this._curMode === ActivityTracker.modes.runDetails) {
-                // load runStats
+                this.loadRunStats(this._curRun);
             } else {
                 this.initOverview();
             }
