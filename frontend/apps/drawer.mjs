@@ -13,22 +13,6 @@ export default class DrawerApp extends App {
         this._apps = availApps;
         this._curFocus = 0;
 
-        this._fontSize = {
-            loStrap: {
-                'small': loStrap.dpi < 150 ? 11 : 16,
-                'normal': loStrap.dpi < 150 ? 15 : 22
-            },
-            upStrap: {
-                'small': loStrap.dpi < 150 ? 10 : 16,
-                'normal': loStrap.dpi < 150 ? 16 : 22
-            },
-            watch: {
-                'small': 18,
-                'normal': 24,
-                'large': 30
-            }
-        }
-
         this._scrollStepSize = {
             loStrap: 0,
             watch: 0
@@ -76,7 +60,7 @@ export default class DrawerApp extends App {
             .attr('id', 'loStrapCon')
             .attr('transform', 'translate(0, -0)');
         
-        let stepSize = this._fontSize.loStrap.normal * 4;
+        let stepSize = this._loStrap.fontSize('normal') * 4;
         loStrapCon.append('g').selectAll('text')
             .data(this._apps)
             .enter().append('text')
@@ -84,8 +68,8 @@ export default class DrawerApp extends App {
             .text((d) => d.name.split(" ")[0])
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * .4)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
-            .attr('y', (d, i) => (i - 1) * stepSize + this._fontSize.loStrap.normal * 2)
+            .style('font', this._loStrap.font('normal'))
+            .attr('y', (d, i) => (i - 1) * stepSize + this._loStrap.fontSize('normal') * 2.2)
             .attr("fill", 'white');
 
         loStrapCon.append('g').selectAll('text')
@@ -95,8 +79,8 @@ export default class DrawerApp extends App {
             .text((d) => d.name.split(" ")[1])
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * .4)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
-            .attr('y', (d, i) => (i - 1) * stepSize + this._fontSize.loStrap.normal * 2 + (this._fontSize.loStrap.normal * 1.2))
+            .style('font', this._loStrap.font('normal'))
+            .attr('y', (d, i) => (i - 1) * stepSize + this._loStrap.fontSize('normal') * 2.2 + (this._loStrap.fontSize('normal') * 1.4))
             .attr("fill", 'white');
 
         loStrapCon.append('g').selectAll('image')
@@ -104,7 +88,7 @@ export default class DrawerApp extends App {
             .enter().append('image')
             .attr("href", (d) => '/assets/' + d.name.toLowerCase().replace(" ", "-") + '/favicon.png')
             .attr('x', this._loStrap.width * .1)
-            .attr('y', (d, i) => (i - 1) * stepSize + this._fontSize.loStrap.normal * 1.5)
+            .attr('y', (d, i) => (i - 1) * stepSize + this._loStrap.fontSize('normal') * 1.5)
             .attr('height', this._loStrap.width * .2)
             .attr('width', this._loStrap.width * .2);
 
@@ -144,9 +128,9 @@ export default class DrawerApp extends App {
             .text((d) => d.name.split(" ")[0])
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * .4)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .style('font', this._upStrap.font('normal'))
             .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
-            .attr('y', (d, i) => (i) * stepSize + this._fontSize.loStrap.normal * 2)
+            .attr('y', (d, i) => (i) * stepSize + this._upStrap.fontSize('normal') * 2.2)
             .attr("fill", 'white');
 
         upStrapCon.append('g').selectAll('text')
@@ -156,9 +140,9 @@ export default class DrawerApp extends App {
             .text((d) => d.name.split(" ")[1])
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * .4)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .style('font', this._upStrap.font('normal'))
             .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
-            .attr('y', (d, i) => (i) * stepSize + this._fontSize.loStrap.normal * 2 + (this._fontSize.loStrap.normal * 1.2))
+            .attr('y', (d, i) => (i) * stepSize + this._upStrap.fontSize('normal') * 2.2 + (this._upStrap.fontSize('normal') * 1.4))
             .attr("fill", 'white');
 
         upStrapCon.append('g').selectAll('image')
@@ -166,7 +150,7 @@ export default class DrawerApp extends App {
             .enter().append('image')
             .attr("href", (d) => '/assets/' + d.name.toLowerCase().replace(" ", "-") + '/favicon.png')
             .attr('x', this._loStrap.width * .1)
-            .attr('y', (d, i) => (i) * stepSize + this._fontSize.loStrap.normal * 1.5)
+            .attr('y', (d, i) => (i) * stepSize + this._upStrap.fontSize('normal') * 1.5)
             .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
             .attr('height', this._loStrap.width * .2)
             .attr('width', this._loStrap.width * .2);
@@ -222,8 +206,8 @@ export default class DrawerApp extends App {
             this._curFocus * -this._scrollStepSize.loStrap);
 
         let upStrapInter = this._upStrap.d3.interpolateNumber(
-            oldFocus * this._scrollStepSize.loStrap,
-            this._curFocus * this._scrollStepSize.loStrap);
+            oldFocus * this._scrollStepSize.loStrap + this._upStrap.height * 0.05,
+            this._curFocus * this._scrollStepSize.loStrap + this._upStrap.height * 0.05);
         
         let t = this._watch.d3.timer((elapsed) => {
             if (elapsed > 500) {

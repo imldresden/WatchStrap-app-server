@@ -69,24 +69,6 @@ export default class MusicPlayer extends App{
         ];
         this._curFocus = 0;
 
-        this._fontSize = {
-            loStrap: {
-                'small': loStrap.dpi < 150 ? 11 : 16,
-                'normal': loStrap.dpi < 150 ? 15 : 22
-            },
-            upStrap: {
-                'small': loStrap.dpi < 150 ? 10 : 16,
-                'normal': loStrap.dpi < 150 ? 16 : 22
-            },
-            watch: {
-                'small': 18,
-                'normal': 24,
-                'large': 30
-            }
-        }
-
-        //this._upStrap.svg.attr('transform', 'rotate(180) translate(270, 620)');
-
         this._upCon = this._upStrap.svg.append('g');
         this._backgroundWatch = this._watch.svg.append('g').attr('id', 'backgroundWatch');
         this._scrollConWatch = this._watch.svg.append('g').attr('id', 'scrollConWatch');
@@ -136,7 +118,7 @@ export default class MusicPlayer extends App{
         this._scrollConWatch.append('text')
             .text(this._playlists[playlistIndex].name)
             .attr('text-anchor', 'middle')
-            .style('font', this._fontSize.watch.large + 'px sans-serif')
+            .style('font', this._watch.font('large'))
             .attr('x', this._watch.width / 2)
             .attr('y', 170)
             .attr("fill", 'white');  
@@ -144,7 +126,7 @@ export default class MusicPlayer extends App{
         this._scrollConWatch.append('text')
             .text(this._playlists[playlistIndex].songs + " songs")
             .attr('text-anchor', 'middle')
-            .style('font', this._fontSize.watch.small + 'px sans-serif')
+            .style('font', this._watch.font('small'))
             .attr('x', this._watch.width / 2)
             .attr('y', 220)
             .attr("fill", 'white');
@@ -152,7 +134,7 @@ export default class MusicPlayer extends App{
         this._scrollConWatch.append('text')
             .text("Created: " + MusicPlayer.formatDate(data[0].addedAt))
             .attr('text-anchor', 'middle')
-            .style('font', this._fontSize.watch.small + 'px sans-serif')
+            .style('font', this._watch.font('small'))
             .attr('x', this._watch.width / 2)
             .attr('y', 260)
             .attr("fill", 'white');
@@ -180,7 +162,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.trackName)
             .attr('text-anchor', 'left')
-            .style('font', this._fontSize.watch.normal + 'px sans-serif')
+            .style('font', this._watch.font('normal'))
             .attr('x', 15)
             .attr('y', (d, i) => 210 + this._watch.height * (i + 1))
             .attr("fill", 'white');
@@ -190,7 +172,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.artistName)
             .attr('text-anchor', 'left')
-            .style('font', this._fontSize.watch.small + 'px sans-serif')
+            .style('font', this._watch.font('small'))
             .attr('x', 30)
             .attr('y', (d, i) => 240 + this._watch.height * (i + 1))
             .attr("fill", 'lightgray');
@@ -200,7 +182,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.albumName)
             .attr('text-anchor', 'left')
-            .style('font', this._fontSize.watch.small + 'px sans-serif')
+            .style('font', this._watch.font('small'))
             .attr('x', 45)
             .attr('y', (d, i) => 265 + this._watch.height * (i + 1))
             .attr("fill", 'lightgray');
@@ -210,7 +192,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => { return MusicPlayer.formatDuration(d.trackDuration); })
             .attr('text-anchor', 'left')
-            .style('font', this._fontSize.watch.small + 'px sans-serif')
+            .style('font', this._watch.font('small'))
             .attr('x', 70)
             .attr('y', (d, i) => 290 + this._watch.height * (i + 1))
             .attr("fill", 'lightgray');
@@ -224,7 +206,7 @@ export default class MusicPlayer extends App{
         this._overlayWatch.append('text')
             .text('PLAY')
             .attr('text-anchor', 'middle')
-            .style('font', this._fontSize.watch.normal + 'px sans-serif')
+            .style('font', this._watch.font('normal'))
             .attr('x', 180)
             .attr('y', 78)
             .attr("fill", 'white');
@@ -235,8 +217,8 @@ export default class MusicPlayer extends App{
             .text((d) => d.trackName)
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * 0.05)
-            .style('font', this._fontSize.loStrap.normal + 'px Arial')
-            .attr('y', (d, i) => (i * this._fontSize.loStrap.normal * 3.5) + this._fontSize.loStrap.normal * 2)
+            .style('font', this._loStrap.font('normal'))
+            .attr('y', (d, i) => (i * this._loStrap.fontSize('normal') * 3.5) + this._loStrap.fontSize('normal') * 2)
             .attr("fill", 'white');
         this._scrollConLoStrap.append('g').selectAll('text')
             .data(data)
@@ -244,14 +226,12 @@ export default class MusicPlayer extends App{
             .text((d) => d.artistName + " - " + d.albumName)
             .attr('text-anchor', 'left')
             .attr('x', this._loStrap.width * 0.05)
-            .style('font', (d, i) => {
-                return i % 2 === 0 ? this._fontSize.loStrap.small + 'px Arial' : this._fontSize.loStrap.small + 'px Arial'
-            })
-            .attr('y', (d, i) => (i * this._fontSize.loStrap.normal * 3.5) + this._fontSize.loStrap.small * 1.5 + this._fontSize.loStrap.normal * 2)
+            .style('font', this._loStrap.font('small'))
+            .attr('y', (d, i) => (i * this._loStrap.fontSize('normal') * 3.5) + this._loStrap.fontSize('small') * 1.5 + this._loStrap.fontSize('normal') * 2)
             .attr("fill", this._loStrap.colorMode === 'bw' ? 'white' : 'gray');
 
         
-        this._scrollStepSizeLoStrap = this._fontSize.loStrap.normal * 3.5;
+        this._scrollStepSizeLoStrap = this._loStrap.fontSize('normal') * 3.5;
 
         let touchBoxes = Math.ceil(this._loStrap.height / this._scrollStepSizeLoStrap);
 
@@ -288,7 +268,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.name)
             .attr('text-anchor', 'middle')
-            .style('font', this._fontSize.watch.normal + 'px sans-serif')
+            .style('font', this._watch.font('normal'))
             .attr('x', this._watch.width / 2)
             .attr('y', (d, i) => 270 + this._watch.height * i)
             .attr("fill", 'white');  
@@ -298,7 +278,7 @@ export default class MusicPlayer extends App{
             .enter().append('text')
             .text((d) => d.songs + " songs")
             .attr('text-anchor', 'middle')
-            .style('font', this._fontSize.watch.small + 'px sans-serif')
+            .style('font', this._watch.font('small'))
             .attr('x', this._watch.width / 2)
             .attr('y', (d, i) => 300 + this._watch.height * i)
             .attr("fill", 'white');
@@ -320,8 +300,8 @@ export default class MusicPlayer extends App{
             .text((d) => d.name)
             .attr('text-anchor', 'middle')
             .attr('x', this._loStrap.width / 2)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
-            .attr('y', (d, i) => (i - 1) * 70 + 30)
+            .style('font', this._loStrap.font('normal'))
+            .attr('y', (d, i) => (i - 1) * 70 + 40)
             .attr("fill", 'white');
 
         this._scrollStepSizeLoStrap = 70;
@@ -428,7 +408,7 @@ export default class MusicPlayer extends App{
             .text("Play: " + this._playlists[0].name)
             .attr('text-anchor', 'left')
             .attr('x', this._upStrap.width * 0.05)
-            .style('font', this._fontSize.upStrap.small + 'px sans-serif')
+            .style('font', this._upStrap.font('small'))
             .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', 0)')
             .attr('y', -this._upStrap.height * .3)
             .attr("fill", 'white');
@@ -467,7 +447,6 @@ export default class MusicPlayer extends App{
     }
 
     updateControls() {
-        let upCon = this._upCon;
         switch (this._curState) {
             case MusicPlayer.states.playing:
                 let song = this._curPlaying.list[this._curPlaying.songIndex];
@@ -502,7 +481,6 @@ export default class MusicPlayer extends App{
     }
 
     updateProgress(startTime) {
-        let upCon = this._upCon;
         if (this._pausedDuration) {
             startTime = startTime - this._pausedDuration;
             this._pausedDuration = undefined;
@@ -534,11 +512,11 @@ export default class MusicPlayer extends App{
                 if (this._lastPlaylistIndex === this._curPlaying.listIndex) {
                     this._scrollConLoStrap.select('#strap-tracknames').selectAll('text')
                         .attr("fill", "white")
-                        .style('font', this._fontSize.loStrap.normal + 'px Arial');
+                        .style('font', this._loStrap.font('normal'));
                     this._scrollConLoStrap.select('#strap-tracknames').selectAll('text')
                         .filter((d, i) => i === this._curPlaying.songIndex)
                         .attr("fill", this._loStrap.colorMode === 'bw' ? 'white' : "deepskyblue")
-                        .style('font', this._fontSize.loStrap.normal + 'px Arial Black');
+                        .style('font', this._loStrap.font('normal', 'bold'));
 
                     this._scrollConWatch.select('#watch-tracknames').selectAll('text')
                         .attr("fill", "white");

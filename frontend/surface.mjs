@@ -50,14 +50,14 @@ export default class Surface {
 
         this._fontSize = {
             "LOWER_STRAP": {
-                'small': this.dpi < 150 ? 11 : 16,
-                'normal': this.dpi < 150 ? 15 : 22,
-                'large': this.dpi < 150 ? 20 : 28
+                'small': this.dpi < 150 ? 11 : 18,
+                'normal': this.dpi < 150 ? 15 : 24,
+                'large': this.dpi < 150 ? 20 : 32
             },
             "UPPER_STRAP": {
-                'small': this.dpi < 150 ? 11 : 16,
-                'normal': this.dpi < 150 ? 15 : 22,
-                'large': this.dpi < 150 ? 20 : 28
+                'small': this.dpi < 150 ? 11 : 18,
+                'normal': this.dpi < 150 ? 15 : 24,
+                'large': this.dpi < 150 ? 20 : 32
             },
             "WATCH": {
                 'tiny': 14,

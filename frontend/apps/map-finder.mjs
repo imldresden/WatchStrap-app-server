@@ -7,23 +7,6 @@ export default class MapFinder extends App{
     constructor(watch, loStrap, upStrap) {
         super(watch, loStrap, upStrap);
 
-        this._fontSize = {
-            loStrap: {
-                'small': loStrap.dpi < 150 ? 11 : 16,
-                'normal': loStrap.dpi < 150 ? 15 : 22,
-                'large': loStrap.dpi < 150 ? 18 : 26
-            },
-            upStrap: {
-                'small': loStrap.dpi < 150 ? 10 : 16,
-                'normal': loStrap.dpi < 150 ? 16 : 22
-            },
-            watch: {
-                'small': 18,
-                'normal': 24,
-                'large': 30
-            }
-        }
-
         this.initApp();
     }
 
@@ -45,16 +28,16 @@ export default class MapFinder extends App{
         this._loStrap.svg.append('text')
             .text('190')
             .attr('x', this._loStrap.width * .55)
-            .attr('y', this._loStrap.width * .1 + this._fontSize.loStrap.large)
-            .style('font', this._fontSize.loStrap.large + 2 + 'px sans-serif')
+            .attr('y', this._loStrap.width * .1 + this._loStrap.fontSize('large'))
+            .style('font', this._loStrap.font('large'))
             .attr('fill', 'white')
             .attr('height', this._loStrap.width * .3)
             .attr('width', this._loStrap.width * .3);
         this._loStrap.svg.append('text')
             .text('meter')
             .attr('x', this._loStrap.width * .55)
-            .attr('y', this._loStrap.width * .1 + this._fontSize.loStrap.large * 2)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('y', this._loStrap.width * .1 + this._loStrap.fontSize('large') * 2)
+            .style('font', this._loStrap.font('normal'))
             .attr('fill', 'white')
             .attr('height', this._loStrap.width * .3)
             .attr('width', this._loStrap.width * .3);
@@ -69,16 +52,16 @@ export default class MapFinder extends App{
         this._loStrap.svg.append('text')
             .text('2.6')
             .attr('x', this._loStrap.width * .55)
-            .attr('y', this._loStrap.width * .1 + this._fontSize.loStrap.large + this._loStrap.width * .6)
-            .style('font', this._fontSize.loStrap.large + 2 + 'px sans-serif')
+            .attr('y', this._loStrap.width * .1 + this._loStrap.fontSize('large') + this._loStrap.width * .6)
+            .style('font', this._loStrap.font('large'))
             .attr('fill', 'white')
             .attr('height', this._loStrap.width * .3)
             .attr('width', this._loStrap.width * .3);
         this._loStrap.svg.append('text')
             .text('km')
             .attr('x', this._loStrap.width * .55)
-            .attr('y', this._loStrap.width * .1 + this._fontSize.loStrap.large * 2 + this._loStrap.width * .6)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('y', this._loStrap.width * .1 + this._loStrap.fontSize('large') * 2 + this._loStrap.width * .6)
+            .style('font', this._loStrap.font('normal'))
             .attr('fill', 'white')
             .attr('height', this._loStrap.width * .3)
             .attr('width', this._loStrap.width * .3);
@@ -92,16 +75,16 @@ export default class MapFinder extends App{
         this._loStrap.svg.append('text')
             .text('6.0')
             .attr('x', this._loStrap.width * .55)
-            .attr('y', this._loStrap.width * .1 + this._fontSize.loStrap.large + this._loStrap.width * 1.2)
-            .style('font', this._fontSize.loStrap.large + 2 + 'px sans-serif')
+            .attr('y', this._loStrap.width * .1 + this._loStrap.fontSize('large') + this._loStrap.width * 1.2)
+            .style('font', this._loStrap.font('large'))
             .attr('fill', 'white')
             .attr('height', this._loStrap.width * .3)
             .attr('width', this._loStrap.width * .3);
         this._loStrap.svg.append('text')
             .text('km')
             .attr('x', this._loStrap.width * .55)
-            .attr('y', this._loStrap.width * .1 + this._fontSize.loStrap.large * 2 + this._loStrap.width * 1.2)
-            .style('font', this._fontSize.loStrap.normal + 'px sans-serif')
+            .attr('y', this._loStrap.width * .1 + this._loStrap.fontSize('large') * 2 + this._loStrap.width * 1.2)
+            .style('font', this._loStrap.font('normal'))
             .attr('fill', 'white')
             .attr('height', this._loStrap.width * .3)
             .attr('width', this._loStrap.width * .3);
