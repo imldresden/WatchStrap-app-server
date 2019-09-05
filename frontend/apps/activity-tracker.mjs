@@ -396,7 +396,7 @@ export default class ActivityTracker extends App{
             .datum(runData)
             .attr('d', linePace)
             .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'deepskyblue')
-            .attr('stroke-width', 1);
+            .attr('stroke-width', this._loStrap.colorMode === 'bw' ? 1 : 2);
 
         this._staticConLoStrap.append('text')
             .text(runMeta.avgPace)
@@ -426,7 +426,7 @@ export default class ActivityTracker extends App{
             .datum(runData)
             .attr('d', lineHR)
             .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'indianred')
-            .attr('stroke-width', 1);
+            .attr('stroke-width', this._loStrap.colorMode === 'bw' ? 1 : 2);
 
         this._staticConLoStrap.append('text')
             .text(runMeta.avgHR)
@@ -456,7 +456,7 @@ export default class ActivityTracker extends App{
             .datum(runData)
             .attr('d', lineElev)
             .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'limegreen')
-            .attr('stroke-width', 1);
+            .attr('stroke-width', this._loStrap.colorMode === 'bw' ? 1 : 2);
 
         this._staticConLoStrap.append('text')
             .text(runMeta.elevGain)
@@ -617,6 +617,38 @@ export default class ActivityTracker extends App{
             .attr('stroke-width', 3);
 
         this._staticConWatch.append('text')
+            .text('Time')
+            .attr('text-anchor', 'right')
+            .attr('x', this._watch.width * .34)
+            .attr('y', 50)
+            .style('font', this._watch.font('small'))
+            .attr('fill', 'gray');
+
+        let time = this._staticConWatch.append('text')
+            .text(this.formatSeconds(0))
+            .attr('text-anchor', 'right')
+            .attr('x', this._watch.width *.34)
+            .attr('y', 80)
+            .style('font', this._watch.font('normal'))
+            .attr('fill', 'gray');
+
+        this._staticConWatch.append('text')
+            .text('Dist')
+            .attr('text-anchor', 'left')
+            .attr('x', this._watch.width * .65)
+            .attr('y', 50)
+            .style('font', this._watch.font('small'))
+            .attr('fill', 'gray');
+
+        let dist = this._staticConWatch.append('text')
+            .text(this.formatDistance(runData[0].distance))
+            .attr('text-anchor', 'left')
+            .attr('x', this._watch.width *.65)
+            .attr('y', 80)
+            .style('font', this._watch.font('normal'))
+            .attr('fill', 'gray');
+
+        this._staticConWatch.append('text')
             .text('Pace')
             .attr('text-anchor', 'middle')
             .attr('x', this._watch.width / 2)
@@ -665,7 +697,6 @@ export default class ActivityTracker extends App{
 
 
         this._detailScroll = (index) => {
-            console.log("scroll", index);
             if (index < 0 || index >= runData.length)
                 return;
             this._curFocus = index;
@@ -679,6 +710,9 @@ export default class ActivityTracker extends App{
             pace.text(this.formatPace(runData[index].speed));
             hr.text(runData[index].hr);
             elev.text(Number.parseFloat(runData[index].alt).toFixed(2));
+            dist.text(this.formatDistance(runData[index].distance))
+            let t = (new Date(runData[index].time)).getTime() - (new Date(runData[0].time)).getTime();
+            time.text(this.formatSeconds(t / 1000));
 
         }
 
@@ -698,8 +732,8 @@ export default class ActivityTracker extends App{
             .attr('width', this._loStrap.width)
             .attr('height', this._loStrap.height)
             .attr('fill-opacity', 0)
-            .on('mousedown', () => mapTouchOnStrap())
-            .on('mousemove', () => mapTouchOnStrap());
+            .on('mouseup', () => mapTouchOnStrap());
+
         let mapTouchOnStrap = () => {
             let eY = this._loStrap.d3.event.y;
             if (eY < y.domain[0] || eY > y.domain[1]) return;
@@ -724,72 +758,72 @@ export default class ActivityTracker extends App{
             .text('pace')
             .style('font', this._loStrap.font('normal'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 20)
-            .attr('y', 26)
+            .attr('x', this._loStrap.height * 0.05)
+            .attr('y', this._loStrap.width * 0.2)
             .attr('fill', 'white');
 
         this._staticConLoStrap.append('text')
             .text('dist')
             .style('font', this._loStrap.font('normal'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 20)
-            .attr('y', 58)
+            .attr('x', this._loStrap.height * 0.05)
+            .attr('y', this._loStrap.width * 0.55)
             .attr('fill', 'white');
 
         this._staticConLoStrap.append('text')
             .text('time')
             .style('font', this._loStrap.font('normal'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 20)
-            .attr('y', 90)
+            .attr('x', this._loStrap.height * 0.05)
+            .attr('y', this._loStrap.width * 0.9)
             .attr('fill', 'white');
 
         this._staticConLoStrap.append('text')
             .text('min/km')
             .style('font', this._loStrap.font('small'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 130)
-            .attr('y', 26)
+            .attr('x', this._loStrap.height * 0.05 + this._loStrap.fontSize('small') * 10)
+            .attr('y', this._loStrap.width * 0.2)
             .attr('fill', 'white');
 
         this._staticConLoStrap.append('text')
             .text('m')
             .style('font', this._loStrap.font('small'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 130)
-            .attr('y', 58)
+            .attr('x', this._loStrap.height * 0.05 + this._loStrap.fontSize('small') * 10)
+            .attr('y', this._loStrap.width * 0.55)
             .attr('fill', 'white');
 
         this._staticConLoStrap.append('text')
             .text('min')
             .style('font', this._loStrap.font('small'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 130)
-            .attr('y', 90)
+            .attr('x', this._loStrap.height * 0.05 + this._loStrap.fontSize('small') * 10)
+            .attr('y', this._loStrap.width * 0.9)
             .attr('fill', 'white');
 
         let pace = this._staticConLoStrap.append('text')
             .text("00:00")
             .style('font', this._loStrap.font('large'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 70)
-            .attr('y', 26)
+            .attr('x', this._loStrap.height * 0.05 + this._loStrap.fontSize('small') * 4)
+            .attr('y', this._loStrap.width * 0.2)
             .attr('fill', 'white');
 
         let dist = this._staticConLoStrap.append('text')
             .text("00.00")
             .style('font', this._loStrap.font('large'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 70)
-            .attr('y', 58)
+            .attr('x', this._loStrap.height * 0.05 + this._loStrap.fontSize('small') * 4)
+            .attr('y', this._loStrap.width * 0.55)
             .attr('fill', 'white');
 
         let time = this._staticConLoStrap.append('text')
             .text("00:00")
             .style('font', this._loStrap.font('large'))
             .attr('transform', 'rotate(90) translate(' + this._loStrap.width + ', 0)')
-            .attr('x', 70)
-            .attr('y', 90)
+            .attr('x', this._loStrap.height * 0.05 + this._loStrap.fontSize('small') * 4)
+            .attr('y', this._loStrap.width * 0.9)
             .attr('fill', 'white');
 
         let updateValues = () => {
