@@ -2,93 +2,53 @@ import App from "./app.mjs";
 
 export default class MoodBand extends App{
     static name = "Mood Band";
-    static description = "Express your mood!";
+    static description = "Relaxing Nature for you";
 
     constructor(watch, loStrap, upStrap) {
         super(watch, loStrap, upStrap);
-
-        this._fontSize = {
-            loStrap: {
-                'small': loStrap.dpi < 150 ? 11 : 16,
-                'normal': loStrap.dpi < 150 ? 15 : 22,
-                'large': loStrap.dpi < 150 ? 18 : 26
-            },
-            upStrap: {
-                'small': loStrap.dpi < 150 ? 10 : 16,
-                'normal': loStrap.dpi < 150 ? 16 : 22
-            },
-            watch: {
-                'small': 18,
-                'normal': 24,
-                'large': 30
-            }
-        }
-
-        this.imgIndex = 0;
-        this.maxIndex = 6;
 
         this.initApp();
     }
 
     initApp() {
-        let totalHeight = this._loStrap.height + this._watch.height + this._upStrap.height;
-        let scale = totalHeight / 2000
-        this._watch.svg.append('image')
-            .attr("href", (d) => '/assets/mood-band/mood-' + this.imgIndex + '.jpg')
-            .attr('x', -(1333 * scale / 2) + 180)
-            .attr('y', -this._upStrap.height)
-            .attr('height', totalHeight)
-            .attr('width', 1333 * scale)
-            .on('mousedown', () => { this.changeImage(); });
-
-        this._loStrap.svg.append('image')
-            .attr("href", (d) => '/assets/mood-band/mood-' + this.imgIndex + '.jpg')
-            .attr('x', -(1333 * scale / 2) + this._loStrap.width)
-            .attr('y', -this._upStrap.height - this._watch.height)
-            .attr('height', totalHeight)
-            .attr('width', 1333 * scale)
-            .on('mousedown', () => { this.changeImage(); });
-
-        this._upStrap.svg.append('image')
-            .attr("href", (d) => '/assets/mood-band/mood-' + this.imgIndex + '.jpg')
-            .attr('x', -(1333 * scale / 2) + this._upStrap.width)
-            .attr('y', 0)
-            .attr('height', totalHeight)
-            .attr('width', 1333 * scale)
-            .attr('transform', 'rotate(180) translate(' + this._upStrap.width + ', ' + (this._upStrap.height) + ')')
-            .on('mousedown', () => { this.changeImage(); });
-
-        this._upStrap.svg.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', this._upStrap.width)
-            .attr('height', this._upStrap.height)
-            .on('mousedown', () => { this.changeImage(); });
-
-        if (this._loStrap.type === 'eink') {
-            this._loStrap.converting.dithering = true;
-            this._loStrap.converting.invert = false;
-        }
-        if (this._upStrap.type === 'eink') {
-            this._upStrap.converting.dithering = true;
-            this._upStrap.converting.invert = false;
-        }
 
         document.addEventListener('hwkey', (e) => this.onHwkey(e));
-    }
 
-    changeImage() {
-        if (this.imgIndex < this.maxIndex)
-            this.imgIndex++;
-        else
-            this.imgIndex = 1;
+        let vid = this._loStrap.document.createElement('video');
+        vid.src = '/assets/mood-band/video.mp4';
+        vid.autoplay = true;
+        vid.loop = true;
+        vid.style = "position: absolute; top: 450px; left: -100px; transform: rotate(90deg); transform-origin: top; width: 900px; overflow: hidden;";
+        this._loStrap.document.body.appendChild(vid);
 
-        this._watch.svg.select('image')
-            .attr("href", (d) => '/assets/mood-band/mood-' + this.imgIndex + '.jpg');
-        this._loStrap.svg.select('image')
-            .attr("href", (d) => '/assets/mood-band/mood-' + this.imgIndex + '.jpg');
-        this._upStrap.svg.select('image')
-            .attr("href", (d) => '/assets/mood-band/mood-' + this.imgIndex + '.jpg');
+        let vid2 = this._upStrap.document.createElement('video');
+        vid2.src = '/assets/mood-band/video-2.mp4';
+        vid2.autoplay = true;
+        vid2.loop = true;
+        vid2.style = "position: absolute; top: -40px; left: -20px; transform: rotate(-90deg); transform-origin: bottom; width: 620; overflow: hidden;";
+        this._upStrap.document.body.appendChild(vid2);
+
+        this._watch.svg.append('text')
+            .text(() => {
+                let min = (new Date()).getMinutes();
+                return min < 10 ? "0" + min : min;
+            })
+            .attr('x', this._watch.width * 0.52)
+            .attr('y', 195)
+            .style('font', '50px Arial')
+            .attr('fill', 'deepskyblue');
+
+        this._watch.svg.append('text')
+            .text(() => {
+                let min = (new Date()).getHours();
+                return min < 10 ? "0" + min : min;
+            })
+            .attr('x', this._watch.width * 0.48)
+            .attr('y', 195)
+            .attr('text-anchor', 'right')
+            .style('font', '50px Arial')
+            .attr('fill', 'white');
+
     }
 
     onHwkey(e) {

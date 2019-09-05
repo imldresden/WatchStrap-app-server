@@ -3,8 +3,8 @@ import TestApp from './apps/test-app.mjs';
 import Drawer from './apps/drawer.mjs';
 import ActivityTracker from './apps/activity-tracker.mjs';
 import MusicPlayer from './apps/music-player.mjs';
-import SmartHome from './apps/smart-home.mjs';
 import MapFinder from './apps/map-finder.mjs';
+import PatternBand from './apps/pattern-band.mjs';
 import MoodBand from './apps/mood-band.mjs';
 
 const idMain = "MAIN";
@@ -83,9 +83,9 @@ class Main {
         this._availApps = [
             MusicPlayer,
             ActivityTracker,
-            SmartHome,
-            MapFinder,
             MoodBand,
+            MapFinder,
+            PatternBand,
             TestApp
         ];
 
@@ -191,7 +191,7 @@ class Main {
                 <script src='js/d3.v5.min.js'></script>
                 <script src='js/ssvg.js'></script>
             </head>
-            <body style='margin:0;'>
+            <body style='margin:0; overflow:hidden;'>
                 <svg id='surfaceSvg' height='${d.height}' width='${d.width}'></svg>
             </body>`;
     }
