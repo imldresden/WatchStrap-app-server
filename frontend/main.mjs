@@ -27,13 +27,13 @@ const displayConfigs = {
         width: 104,
         height: 212,
         dpi: 105,
-        updateInterval: 800,
+        updateInterval: 1200,
         type: 'eink',
         imageFormat: 'bitarray',
         color: 'bw'
     },
     digitalUpperStrap: {
-        width: 270,
+        width: 250,
         height: 620,
         dpi: 274,
         updateInterval: 0,
@@ -42,7 +42,7 @@ const displayConfigs = {
         color: 'full'
     },
     digitalLowerStrap: {
-        width: 270,
+        width: 250,
         height: 900,
         dpi: 274,
         updateInterval: 0,
