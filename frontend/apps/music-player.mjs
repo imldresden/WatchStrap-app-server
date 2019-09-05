@@ -250,6 +250,10 @@ export default class MusicPlayer extends App{
 
                 this._curState = MusicPlayer.states.playing;
                 this._curPlaying.songIndex = index;
+                if (this._curTimer) {
+                    clearTimeout(this._curTimer);
+                    this._curTimer = undefined;
+                }
                 this.updateControls();
             });
         }
