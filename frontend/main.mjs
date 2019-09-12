@@ -6,6 +6,8 @@ import MusicPlayer from './apps/music-player.mjs';
 import MapFinder from './apps/map-finder.mjs';
 import PatternBand from './apps/pattern-band.mjs';
 import MoodBand from './apps/mood-band.mjs';
+import FinanceData from './apps/finance-data.mjs';
+import PublicTransport from './apps/public-transport.mjs';
 
 const idMain = "MAIN";
 const idWatch = "WATCH";
@@ -85,6 +87,8 @@ class Main {
             ActivityTracker,
             MoodBand,
             MapFinder,
+            FinanceData,
+            PublicTransport,
             PatternBand,
             TestApp
         ];
