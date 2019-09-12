@@ -540,8 +540,8 @@ export default class ActivityTracker extends App{
         this._staticConLoStrap.append('path')
             .datum(runData)
             .attr('d', lineHR)
-            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'indianred')
-            .attr('stroke-width', this._loStrap.colorMode === 'bw' ? 0.5 : 1);
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'none' : 'indianred')
+            .attr('stroke-width', 1);
 
         let xElev = this._loStrap.d3.scaleLinear()
             .rangeRound([this._loStrap.width * 0.05, this._loStrap.width * 0.95]);
@@ -555,8 +555,8 @@ export default class ActivityTracker extends App{
         this._staticConLoStrap.append('path')
             .datum(runData)
             .attr('d', lineElev)
-            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'white' : 'limegreen')
-            .attr('stroke-width', this._loStrap.colorMode === 'bw' ? 0.5 : 1);
+            .attr('stroke', this._loStrap.colorMode === 'bw' ? 'none' : 'limegreen')
+            .attr('stroke-width', 1);
 
         let strapLine = this._staticConLoStrap.append('line')
             .attr('x1', 0)
