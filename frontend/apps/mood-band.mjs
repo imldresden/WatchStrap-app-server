@@ -11,9 +11,6 @@ export default class MoodBand extends App{
     }
 
     initApp() {
-
-        document.addEventListener('hwkey', (e) => this.onHwkey(e));
-
         let vid = this._loStrap.document.createElement('video');
         vid.src = '/assets/mood-band/video.mp4';
         vid.autoplay = true;
@@ -34,8 +31,8 @@ export default class MoodBand extends App{
                 return min < 10 ? "0" + min : min;
             })
             .attr('x', this._watch.width * 0.52)
-            .attr('y', 195)
-            .style('font', '50px Arial')
+            .attr('y', 200)
+            .style('font', '70px Bahnschrift Light')
             .attr('fill', 'deepskyblue');
 
         this._watch.svg.append('text')
@@ -44,9 +41,9 @@ export default class MoodBand extends App{
                 return min < 10 ? "0" + min : min;
             })
             .attr('x', this._watch.width * 0.48)
-            .attr('y', 195)
+            .attr('y', 200)
             .attr('text-anchor', 'right')
-            .style('font', '50px Arial')
+            .style('font', '70px Bahnschrift Light')
             .attr('fill', 'white');
 
     }
