@@ -8,6 +8,7 @@ import PatternBand from './apps/pattern-band.mjs';
 import MoodBand from './apps/mood-band.mjs';
 import FinanceData from './apps/finance-data.mjs';
 import PublicTransport from './apps/public-transport.mjs';
+import FlashLight from './apps/flash-light.mjs';
 
 const idMain = "MAIN";
 const idWatch = "WATCH";
@@ -90,6 +91,7 @@ class Main {
             FinanceData,
             PublicTransport,
             PatternBand,
+            FlashLight,
             TestApp
         ];
 
