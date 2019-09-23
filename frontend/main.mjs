@@ -9,6 +9,7 @@ import MoodBand from './apps/mood-band.mjs';
 import FinanceData from './apps/finance-data.mjs';
 import PublicTransport from './apps/public-transport.mjs';
 import FlashLight from './apps/flash-light.mjs';
+import FriendlyReminder from './apps/friendly-reminder.mjs';
 
 const idMain = "MAIN";
 const idWatch = "WATCH";
@@ -92,6 +93,7 @@ class Main {
             PublicTransport,
             PatternBand,
             FlashLight,
+            FriendlyReminder,
             TestApp
         ];
 
