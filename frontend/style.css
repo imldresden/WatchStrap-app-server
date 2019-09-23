@@ -26,6 +26,7 @@ body {
 
 iframe {
     border: solid white 2px;
+    /* border: none; */
 }
 
 iframe#WATCH-surface {
