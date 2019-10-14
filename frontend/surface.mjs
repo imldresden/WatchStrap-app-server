@@ -1,5 +1,5 @@
 export default class Surface {
-
+    
     _id;
     _displayConfig;
     _iframe;
@@ -65,9 +65,9 @@ export default class Surface {
                 'normal': 24,
                 'large': 30
             }
-        }
+        };
 
-        this.window.onload = () => this._onLoadedCallback(id, this)
+        this.window.onload = () => this._onLoadedCallback(id, this);
     }
 
     font(size, family) {
@@ -76,10 +76,10 @@ export default class Surface {
             if (typeof size === 'number') {
                 fontString = size;
             } else {
-                fontString = this._fontSize[this.id][size] ? this._fontSize[this.id][size] : this._fontSize[this.id]['normal'];
+                fontString = this._fontSize[this.id][size] ? this._fontSize[this.id][size] : this._fontSize[this.id].normal;
             }
         } else {
-            fontString = this._fontSize[this.id]['normal'];
+            fontString = this._fontSize[this.id].normal;
         }
         fontString = fontString + "px";
 
@@ -94,7 +94,7 @@ export default class Surface {
         return fontString;
     }
 
-    fontSize(size) { return this._fontSize[this.id][size]}
+    fontSize(size) { return this._fontSize[this.id][size]; }
 
     generateIFrame() {
         let iframe = document.createElement('iframe');
