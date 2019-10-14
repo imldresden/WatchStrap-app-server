@@ -14,10 +14,17 @@ install:
   tags:
     - node
 
-lint:
+lint-frontend:
   stage: test
   script:
-    - npm run-script lint
+    - npm run-script lint-frontend
+  tags:
+    - node
+
+lint-server:
+  stage: test
+  script:
+    - npm run-script lint-server
   tags:
     - node
 

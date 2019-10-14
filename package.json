@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha",
-    "lint": "eslint --ext .mjs ./",
+    "lint-frontend": "eslint --ext .mjs ./",
+    "lint-server": "eslint server.js",
     "start": "forever start server.js",
     "stop": "forever stopall",
     "debug-local": "node server.js",
