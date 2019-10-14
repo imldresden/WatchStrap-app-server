@@ -17,7 +17,7 @@ export default class App {
         // for mouse / touch events, use mouse* events binded via d3
     }
 
-    onBezelRotate(e) {
+    onBezelRotate() {
         // handle bezel rotate event
     }
 

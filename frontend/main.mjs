@@ -13,7 +13,6 @@ import FriendlyReminder from './apps/friendly-reminder.mjs';
 
 const idMain = "MAIN";
 const idWatch = "WATCH";
-const idStrap = "STRAP";
 const idUpperStrap = "UPPER_STRAP";
 const idLowerStrap = "LOWER_STRAP";
 
@@ -114,7 +113,7 @@ class Main {
         if (this._socket)
             this._socket.close();
 
-        this._socket = io(ip);
+        this._socket = window.io(ip);
 
         this._socket.on('connect', () => {
             this._socket.emit('handshake', this._identifier);

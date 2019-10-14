@@ -13,14 +13,14 @@ export default class MapFinder extends App{
 
     initApp() {
         this._watch.svg.append('image')
-            .attr("href", (d) => '/assets/map-finder/route_hawaii.jpg')
+            .attr("href", '/assets/map-finder/route_hawaii.jpg')
             .attr('x', 0)
             .attr('y', 0)
             .attr('height', 360)
             .attr('width', 360);
 
         this._staticConLoStrap.append('image')
-            .attr("href", (d) => '/assets/map-finder/left.png')
+            .attr("href", '/assets/map-finder/left.png')
             .attr('x', this._loStrap.width * .1)
             .attr('y', this._loStrap.width * .1)
             .attr('height', this._loStrap.width * .3)
@@ -44,7 +44,7 @@ export default class MapFinder extends App{
             .attr('width', this._loStrap.width * .3);
 
         this._staticConLoStrap.append('image')
-            .attr("href", (d) => '/assets/map-finder/right.png')
+            .attr("href", '/assets/map-finder/right.png')
             .attr('x', this._loStrap.width * .1)
             .attr('y', this._loStrap.width * .1 + this._loStrap.width * .6)
             .attr('height', this._loStrap.width * .3)
@@ -68,7 +68,7 @@ export default class MapFinder extends App{
             .attr('width', this._loStrap.width * .3);
 
         this._staticConLoStrap.append('image')
-            .attr("href", (d) => '/assets/map-finder/up.png')
+            .attr("href", '/assets/map-finder/up.png')
             .attr('x', this._loStrap.width * .1)
             .attr('y', this._loStrap.width * .1 + this._loStrap.width * 1.2)
             .attr('height', this._loStrap.width * .3)

@@ -12,15 +12,11 @@ const Dither = require('canvas-dither');
 
 // Configuration
 const idMain = "MAIN";
-const idWatch = "WATCH";
-const idStrap = "STRAP";
-const idUpperStrap = "UPPER_STRAP";
-const idLowerStrap = "LOWER_STRAP";
 
 const port = 31415;
 let remoteAddress;
 
-process.argv.forEach(function (val, index, array) {
+process.argv.forEach(function (val) {
     if (val.startsWith("--remote=")) {
         remoteAddress = val.split('=')[1];
     }
@@ -72,7 +68,7 @@ io.on('connection', client => {
                 ctx.putImageData(imgData, 0, 0);
             }
             // Generate bitmap via JPEGStream
-            stream = canvas.createJPEGStream({
+            let stream = canvas.createJPEGStream({
                 quality: 1,
                 progressive: false,
                 chromaSubsampling: true});
@@ -133,10 +129,11 @@ io.on('connection', client => {
                 });
         }).catch(err => {
             // Error converting image
+            console.debug(err);
           });        
     })
 
-    client.on('disconnect', (reason) => {
+    client.on('disconnect', () => {
         let identifier = getIdentifierByClientId(client.id);
         connectionMap.delete(identifier);
 

@@ -738,7 +738,7 @@ export default class ActivityTracker extends App{
             let eY = this._loStrap.d3.event.y;
             if (eY < y.domain[0] || eY > y.domain[1]) return;
 
-            let index = runData.indexOf(runData.find((d, i) => (new Date(d.time)).getTime() >= y.invert(eY)));
+            let index = runData.indexOf(runData.find((d) => (new Date(d.time)).getTime() >= y.invert(eY)));
             this._detailScroll(index);
         }
     }

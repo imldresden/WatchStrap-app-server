@@ -452,8 +452,8 @@ export default class MusicPlayer extends App{
 
     updateControls() {
         switch (this._curState) {
-            case MusicPlayer.states.playing:
-                let song = this._curPlaying.list[this._curPlaying.songIndex];
+            case MusicPlayer.states.playing: 
+                var song = this._curPlaying.list[this._curPlaying.songIndex];
                 this._upCon.select('text')
                     .text(song.trackName + " - " + song.artistName)
                     .attr("fill", this._upStrap.colorMode === 'bw' ? 'white' : "deepskyblue");
@@ -541,7 +541,6 @@ export default class MusicPlayer extends App{
         clearTimeout(this._curTimer);
         this._curTimer = undefined;
         this._curState = MusicPlayer.states.paused;
-        let ratio = (this._upCon.select('#progress-line').attr('x2') - 15) / (this._upStrap.width - 30);
         this._pausedDuration = this._timePassed;
         this.updateControls();
     }
@@ -645,7 +644,7 @@ export default class MusicPlayer extends App{
         if (e.key === "back") {
             switch (this._curMode) {
                 case MusicPlayer.modes.allPlaylists:
-                    let intent = new CustomEvent('intent', {detail: {type: 'close'}});
+                    var intent = new CustomEvent('intent', {detail: {type: 'close'}});
                     document.dispatchEvent(intent);
                     break;
                 case MusicPlayer.modes.playlistView:

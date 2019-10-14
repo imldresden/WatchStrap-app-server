@@ -34,7 +34,7 @@ export default class PatternBand extends App{
         let totalHeight = this._loStrap.height + this._watch.height + this._upStrap.height;
         let scale = totalHeight / 2000
         this._watch.svg.append('image')
-            .attr("href", (d) => '/assets/pattern-band/mood-' + this.imgIndex + '.jpg')
+            .attr("href", '/assets/pattern-band/mood-' + this.imgIndex + '.jpg')
             .attr('x', -(1333 * scale / 2) + 180)
             .attr('y', -this._upStrap.height)
             .attr('height', totalHeight)
@@ -42,7 +42,7 @@ export default class PatternBand extends App{
             .on('mousedown', () => { this.changeImage(); });
 
         this._loStrap.svg.append('image')
-            .attr("href", (d) => '/assets/pattern-band/mood-' + this.imgIndex + '.jpg')
+            .attr("href", '/assets/pattern-band/mood-' + this.imgIndex + '.jpg')
             .attr('x', -(1333 * scale / 2) + this._loStrap.width)
             .attr('y', -this._upStrap.height - this._watch.height)
             .attr('height', totalHeight)
@@ -50,7 +50,7 @@ export default class PatternBand extends App{
             .on('mousedown', () => { this.changeImage(); });
 
         this._upStrap.svg.append('image')
-            .attr("href", (d) => '/assets/pattern-band/mood-' + this.imgIndex + '.jpg')
+            .attr("href", '/assets/pattern-band/mood-' + this.imgIndex + '.jpg')
             .attr('x', -(1333 * scale / 2) + this._upStrap.width)
             .attr('y', 0)
             .attr('height', totalHeight)
@@ -84,11 +84,11 @@ export default class PatternBand extends App{
             this.imgIndex = 1;
 
         this._watch.svg.select('image')
-            .attr("href", (d) => '/assets/pattern-band/mood-' + this.imgIndex + '.jpg');
+            .attr("href", '/assets/pattern-band/mood-' + this.imgIndex + '.jpg');
         this._loStrap.svg.select('image')
-            .attr("href", (d) => '/assets/pattern-band/mood-' + this.imgIndex + '.jpg');
+            .attr("href", '/assets/pattern-band/mood-' + this.imgIndex + '.jpg');
         this._upStrap.svg.select('image')
-            .attr("href", (d) => '/assets/pattern-band/mood-' + this.imgIndex + '.jpg');
+            .attr("href", '/assets/pattern-band/mood-' + this.imgIndex + '.jpg');
     }
 
     onHwkey(e) {

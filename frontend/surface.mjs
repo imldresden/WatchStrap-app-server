@@ -1,6 +1,6 @@
 export default class Surface {
     
-    _id;
+    _id = undefined;
     _displayConfig;
     _iframe;
     _parent;
