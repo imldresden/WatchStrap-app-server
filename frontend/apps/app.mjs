@@ -21,7 +21,7 @@ export default class App {
         // handle bezel rotate event
     }
 
-    onHwkey(e) {
+    onHwkey() {
         // handle hardware key event
     }
 }
