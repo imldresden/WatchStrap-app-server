@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha",
+    "lint": "eslint --ext .mjs ./",
     "start": "forever start server.js",
     "stop": "forever stopall",
     "debug-local": "node server.js",
@@ -24,6 +25,8 @@
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.5.1",
     "mocha": "^6.2.0",
     "socket.io-client": "latest"
   }

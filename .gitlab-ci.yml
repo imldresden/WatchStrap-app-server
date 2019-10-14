@@ -14,6 +14,13 @@ install:
   tags:
     - node
 
+lint:
+  stage: test
+  script:
+    - npm run-script lint
+  tags:
+    - node
+
 tests:
   stage: test
   script:
