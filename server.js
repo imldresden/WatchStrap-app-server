@@ -77,11 +77,7 @@ io.on('connection', client => {
                 chromaSubsampling: true});
             let bitmap = new imagejs.Bitmap();
             bitmap.read(stream, { type: imagejs.ImageType.JPG })
-                .then(function() { 
-                    // bitmap.writeFile('image2.jpg', { quality:75 }).then(function() {
-                    //     //console.log("2nd bitmap has been saved");
-                    // });
-
+                .then(function() {
                     // Convert bitmap to byteArray for eink display
                     einkConverter.convert({
                         source_file: '',
@@ -90,8 +86,8 @@ io.on('connection', client => {
                         bitmap: bitmap,
                         return_array: true,
                         display: {
-                            width: 104,
-                            height: 212,
+                            width: msg.size.width,
+                            height: msg.size.height,
                             fitmode: "none",
                             colormode: msg.invert ? 'invert' : 'normal',
                             fillmode: msg.invert ? 'invert' : 'normal'
