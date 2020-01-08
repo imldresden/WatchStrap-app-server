@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 // Imports
 const express = require('express');
 const app = express();
@@ -13,12 +15,13 @@ const Dither = require('canvas-dither');
 // Configuration
 const idMain = "MAIN";
 
-const port = 31415;
+const port = process.env.PORT || 31415;
 let remoteAddress;
 
 process.argv.forEach(function (val) {
-    if (val.startsWith("--remote=")) {
-        remoteAddress = val.split('=')[1];
+    if (val.startsWith("--remote")) {
+        remoteAddress = process.env.DEBUG_REMOTE_ADDRESS || "localhost";
+        remoteAddress += ":" + port;
     }
 });
 

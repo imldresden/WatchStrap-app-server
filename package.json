@@ -10,7 +10,7 @@
     "start": "forever start server.js",
     "stop": "forever stopall",
     "debug-local": "node server.js",
-    "debug-remote": "node server.js --remote=141.76.67.139:31415"
+    "debug-remote": "node server.js --remote"
   },
   "keywords": [],
   "author": "Tom Horak",
@@ -18,6 +18,7 @@
   "dependencies": {
     "canvas": "^2.5.0",
     "canvas-dither": "^1.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "forever": "^1.0.0",
     "image_to_epaper_converter": "https://github.com/tomhorak21/ImageToEpaperConverter/tarball/master",
