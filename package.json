@@ -29,7 +29,7 @@
   "devDependencies": {
     "babel-eslint": "^10.0.3",
     "eslint": "^6.5.1",
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "socket.io-client": "latest"
   }
 }
